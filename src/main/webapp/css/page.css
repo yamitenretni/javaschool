@@ -1,0 +1,11 @@
+.page {
+    width: 300px;
+    padding: 20px;
+}
+.page__alert {
+    margin-bottom: 20px;
+    display: none;
+}
+.page__login {
+    margin-bottom: 20px;
+}
