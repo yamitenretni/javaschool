@@ -8,41 +8,46 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
-@NamedQuery(name = "User.checkUser", query = "select u from User u where u.login = :login and u.password = :password")
+@NamedQuery(name = "User.checkUser",
+            query = "select u from User u where u.login = :login and u.password = :password")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(name = "login", length = 32)
+    @Column(name = "login")
     private String login;
 
-    @Column(name = "password", length = 32)
+    @Column(name = "password")
     private String password;
 
-    public User(String login, String password) {
-        this.login = login;
-        this.password = password;
+    public User(final String newLogin, final String newPassword) {
+        login = newLogin;
+        password = newPassword;
     }
 
     public User() {
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getLogin() {
         return login;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
+    public void setLogin(final String newLogin) {
+        login = newLogin;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(final String newPassword) {
+        password = newPassword;
     }
 
     @Override

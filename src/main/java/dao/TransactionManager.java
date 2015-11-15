@@ -9,26 +9,26 @@ import javax.persistence.Persistence;
  * Created by Лена on 08.11.2015.
  */
 public class TransactionManager {
-    private static final TransactionManager transactionManager = new TransactionManager();
+    private static final TransactionManager TRANSACTION_MANAGER = new TransactionManager();
     private EntityManager entityManager;
     private EntityTransaction entityTransaction;
 
     private TransactionManager() {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("javaschool");
         entityManager = emf.createEntityManager();
-        entityTransaction = entityManager.getTransaction();
+        //entityTransaction = entityManager.getTransaction();
     }
 
     public static TransactionManager getInstance() {
-        return transactionManager;
+        return TRANSACTION_MANAGER;
     }
 
     public EntityManager getEntityManager() {
         return entityManager;
     }
 
-    public EntityTransaction getEntityTransaction() {
-        return entityTransaction;
-    }
+//    public EntityTransaction getEntityTransaction() {
+//        return entityTransaction;
+//    }
 
 }

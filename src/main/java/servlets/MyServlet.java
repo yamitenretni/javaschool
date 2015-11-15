@@ -3,15 +3,13 @@ package servlets;
 import service.UserService;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet("/s")
 public class MyServlet extends HttpServlet {
-    UserService userService;
+    private UserService userService;
 
     @Override
     public void init() throws ServletException {

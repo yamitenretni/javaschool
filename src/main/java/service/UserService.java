@@ -15,21 +15,20 @@ public class UserService {
     private EntityManager entityManager = TransactionManager.getInstance().getEntityManager();
     private EntityTransaction transaction = entityManager.getTransaction();
 
-    private BaseDAO<User> udao = new BaseDAOImpl<User>();
+    private BaseDAO<User> userDao = new BaseDAOImpl<User>();
 
-    public void addUser(String login, String password) {
+    public void addUser(final String login, final String password) {
         User user = new User();
         user.setLogin(login);
         user.setPassword(password);
 
         transaction.begin();
-        udao.add(user);
-    //    entityManager.merge(user);
+        userDao.add(user);
         transaction.commit();
     }
 
     public List<User> getUsers() {
-        List<User> users = udao.getAll(User.class);
+        List<User> users = userDao.getAll(User.class);
         return users;
     }
 
