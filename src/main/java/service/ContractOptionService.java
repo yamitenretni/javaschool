@@ -7,11 +7,9 @@ import domain.ContractOption;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
-/**
- * Created by Лена on 15.11.2015.
- */
 public class ContractOptionService {
 
     private EntityManager entityManager = TransactionManager.getInstance().getEntityManager();
@@ -31,12 +29,24 @@ public class ContractOptionService {
         option.setMonthlyCost(monthlyCost);
 
         transaction.begin();
-        optionDao.add(option);
+        optionDao.merge(option);
         transaction.commit();
     }
 
-    public List<ContractOption> getOptions() {
-        List<ContractOption> options = optionDao.getAll(ContractOption.class);
+    public void deleteOption(final long id) {
+        ContractOption option = new ContractOption();
+        option.setDeleted(true);
+
+        transaction.begin();
+        optionDao.merge(option);
+        transaction.commit();
+    }
+
+    public List<ContractOption> getActiveOptions() {
+        TypedQuery<ContractOption> namedQuery = entityManager
+                .createNamedQuery("ContractOption.getAllActive", ContractOption.class);
+        List<ContractOption> options = namedQuery.getResultList();
+
         return options;
     }
 

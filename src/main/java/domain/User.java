@@ -1,10 +1,14 @@
 package domain;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
 
-/**
- * Created by Лена on 08.11.2015.
- */
+// TODO: 15.11.2015 set const CHECK_USER = "User.checkUser"
 
 @Entity
 @Table(name = "users")

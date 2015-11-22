@@ -30,6 +30,7 @@
     </div>
 
     <button type="submit" class="btn btn-primary">Add option</button>
+    <a href="/tariffs" class="btn">Back to tariffs</a>
 
 </form>
 <table class="table">

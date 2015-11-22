@@ -5,9 +5,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
-/**
- * Created by Лена on 08.11.2015.
- */
 public class TransactionManager {
     private static final TransactionManager TRANSACTION_MANAGER = new TransactionManager();
     private EntityManager entityManager;

@@ -23,7 +23,7 @@ public class UserService {
         user.setPassword(password);
 
         transaction.begin();
-        userDao.add(user);
+        userDao.merge(user);
         transaction.commit();
     }
 

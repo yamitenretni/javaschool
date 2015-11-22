@@ -10,41 +10,75 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-/**
- * Created by Лена on 15.11.2015.
- */
 public class ProductsSettingsServlet extends HttpServlet {
     private ContractOptionService contractOptionService;
     private ContractTariffService contractTariffService;
+
+    private Pattern tariffEditPattern;
+    private Pattern tariffDeletePattern;
 
     @Override
     public void init() throws ServletException {
         contractTariffService = new ContractTariffService();
         contractOptionService = new ContractOptionService();
+
+        tariffEditPattern = Pattern.compile("^/tariffs/edit/(\\d+)$");
+        tariffDeletePattern = Pattern.compile("^/tariffs/delete/(\\d+)$");
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String actionPath = req.getRequestURI();
+        final String actionPath = req.getRequestURI();
+
+        Matcher tariffEditMatcher = tariffEditPattern.matcher(actionPath);
+        Matcher tariffDeleteMatcher = tariffDeletePattern.matcher(actionPath);
 
         if ("/tariffs".equals(actionPath)) {
-            req.setAttribute("tariffs", contractTariffService.getTariffs());
-            req.setAttribute("options", contractOptionService.getOptions());
+            req.setAttribute("tariffs", contractTariffService.getActiveTariffs());
+            req.setAttribute("options", contractOptionService.getActiveOptions());
             req.getRequestDispatcher("/jsp/tariffs.jsp").forward(req, resp);
         }
 
         if ("/tariffs/add-option".equals(actionPath)) {
-            req.setAttribute("options", contractOptionService.getOptions());
+            req.setAttribute("options", contractOptionService.getActiveOptions());
             req.getRequestDispatcher("/jsp/add-option.jsp").forward(req, resp);
         }
+
+        if (tariffEditMatcher.matches()) {
+            long tariffId = Long.parseLong(tariffEditMatcher.group(1));
+
+            req.setAttribute("editedTariff", contractTariffService.getById(tariffId));
+            req.setAttribute("options", contractOptionService.getActiveOptions());
+
+            req.getRequestDispatcher("/jsp/edit-tariff.jsp").forward(req, resp);
+        }
+
+        if (tariffDeleteMatcher.matches()) {
+            long tariffId = Long.parseLong(tariffDeleteMatcher.group(1));
+
+            contractTariffService.deleteTariff(tariffId);
+
+            resp.sendRedirect("/tariffs");
+        }
+
 
 //        super.doGet(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String actionPath = req.getRequestURI();
+        final String actionPath = req.getRequestURI();
+
+        Pattern editPattern = Pattern.compile("^/tariffs/edit/(\\d+)$");
+        Matcher matcher = editPattern.matcher(actionPath);
+        long tariffId = 0L;
+        if (matcher.matches()) {
+            String tariffIdString = matcher.group(1);
+            tariffId = Long.parseLong(tariffIdString);
+        }
 
         if ("/tariffs".equals(actionPath)) {
             String tariffName = req.getParameter("tariff_name");
@@ -52,8 +86,10 @@ public class ProductsSettingsServlet extends HttpServlet {
             ArrayList<ContractOption> tariffOptions = new ArrayList<ContractOption>();
             String[] selectedOptions = req.getParameterValues("selected_options[]");
 
-            for (String optionId : selectedOptions) {
-                tariffOptions.add(contractOptionService.getById(Integer.parseInt(optionId)));
+            if (selectedOptions != null) {
+                for (String optionId : selectedOptions) {
+                    tariffOptions.add(contractOptionService.getById(Integer.parseInt(optionId)));
+                }
             }
             contractTariffService.addTariff(tariffName, monthlyPrice, tariffOptions);
 
@@ -68,6 +104,21 @@ public class ProductsSettingsServlet extends HttpServlet {
             doGet(req, resp);
         }
 
-        super.doPost(req, resp);
+        if (tariffId != 0L) {
+            String tariffName = req.getParameter("tariff_name");
+            Double monthlyPrice = Double.parseDouble(req.getParameter("monthly_cost"));
+            ArrayList<ContractOption> tariffOptions = new ArrayList<ContractOption>();
+            String[] selectedOptions = req.getParameterValues("selected_options[]");
+
+            if (selectedOptions != null) {
+                for (String optionId : selectedOptions) {
+                    tariffOptions.add(contractOptionService.getById(Integer.parseInt(optionId)));
+                }
+            }
+
+            contractTariffService.updateTariff(tariffId, tariffName, monthlyPrice, tariffOptions);
+
+            resp.sendRedirect("/tariffs");
+        }
     }
 }

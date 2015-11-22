@@ -1,11 +1,4 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%--
-  Created by IntelliJ IDEA.
-  User: Лена
-  Date: 15.11.2015
-  Time: 18:38
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -32,9 +25,8 @@
             </label>
         </div>
     </c:forEach>
-    <a href="/tariffs/add-option" class="btn">Add new option</a>
-
     <button type="submit" class="btn btn-primary">Add tariff</button>
+    <a href="/tariffs/add-option" class="btn">Manage Options</a>
 
 </form>
 <table class="table">
@@ -44,6 +36,8 @@
         <th>Name</th>
         <th>Monthly cost</th>
         <th>Avaliable options</th>
+        <th></th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -58,6 +52,8 @@
                     </c:forEach>
                 </ul>
             </td>
+            <td><a href="/tariffs/edit/${tariff.id}">Edit</a></td>
+            <td><a href="/tariffs/delete/${tariff.id}">Delete</a></td>
         </tr>
     </c:forEach>
     </tbody>

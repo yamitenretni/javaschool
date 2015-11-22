@@ -12,9 +12,6 @@ import javax.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Лена on 15.11.2015.
- */
 public class ContractTariffService {
 
     private EntityManager entityManager = TransactionManager.getInstance().getEntityManager();
@@ -35,21 +32,39 @@ public class ContractTariffService {
         tariff.setAvailableOptions(options);
 
         transaction.begin();
-        tariffDao.add(tariff);
+        tariffDao.merge(tariff);
         transaction.commit();
     }
 
-    public int addTariffOption(final ContractTariff tariff, final ContractOption option) {
+    public void updateTariff(final long id, final String name, final double monthlyCost, final List<ContractOption> availableOptions) {
+        ContractTariff tariff = getById(id);
+        tariff.setName(name);
+        tariff.setMonthlyCost(monthlyCost);
+        tariff.setAvailableOptions(availableOptions);
 
-        TypedQuery<ContractTariff> namedQuery = entityManager
-                .createNamedQuery("ContractTariff.addAvailableOption", ContractTariff.class)
-                .setParameter("tariff", tariff.getId())
-                .setParameter("option", option.getId());
-        return namedQuery.executeUpdate();
+        transaction.begin();
+        tariffDao.merge(tariff);
+        transaction.commit();
     }
 
-    public List<ContractTariff> getTariffs() {
-        List<ContractTariff> tariffs = tariffDao.getAll(ContractTariff.class);
+    public List<ContractTariff> getActiveTariffs() {
+        TypedQuery<ContractTariff> namedQuery = entityManager
+                .createNamedQuery("ContractTariff.getAllActive", ContractTariff.class);
+        List<ContractTariff> tariffs = namedQuery.getResultList();
         return tariffs;
+    }
+
+    public ContractTariff getById(final long id) {
+        return tariffDao.getById(ContractTariff.class, id);
+    }
+
+    public void deleteTariff(final long id) {
+        ContractTariff tariff = getById(id);
+        tariff.setDeleted(true);
+
+        transaction.begin();
+        tariffDao.merge(tariff);
+        transaction.commit();
+
     }
 }

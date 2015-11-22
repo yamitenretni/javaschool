@@ -2,11 +2,10 @@ package domain;
 
 import javax.persistence.*;
 
-/**
- * Created by Лена on 15.11.2015.
- */
 @Entity
 @Table(name = "options")
+@NamedQuery(name = "ContractOption.getAllActive",
+        query = "select o from ContractOption o where o.isDeleted = false")
 public class ContractOption {
 
     @Id
@@ -21,6 +20,9 @@ public class ContractOption {
 
     @Column(name = "monthly_cost")
     private double monthlyCost;
+
+    @Column(name = "deleted")
+    private boolean isDeleted = false;
 
     public ContractOption() {
     }
@@ -57,5 +59,13 @@ public class ContractOption {
 
     public void setMonthlyCost(final double newMonthlyCost) {
         this.monthlyCost = newMonthlyCost;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 }

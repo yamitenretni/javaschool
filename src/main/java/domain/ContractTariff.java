@@ -3,12 +3,10 @@ package domain;
 import javax.persistence.*;
 import java.util.List;
 
-/**
- * Created by Лена on 15.11.2015.
- */
 @Entity
 @Table(name = "tariffs")
-//@NamedQuery(name = "ContractTariff.addAvailableOption", query = "insert into tariff_options t values t.tariff_id = :tariff, t.option_id = :option")
+@NamedQuery(name = "ContractTariff.getAllActive",
+        query = "select t from ContractTariff t where t.isDeleted = false")
 public class ContractTariff {
 
     @Id
@@ -26,6 +24,9 @@ public class ContractTariff {
             joinColumns = {@JoinColumn(name = "tariff_id")},
             inverseJoinColumns = {@JoinColumn(name = "option_id")})
     private List<ContractOption> availableOptions;
+
+    @Column (name = "deleted")
+    private boolean isDeleted = false;
 
     public ContractTariff() {
     }
@@ -62,5 +63,13 @@ public class ContractTariff {
 
     public void setAvailableOptions(final List<ContractOption> newAvailableOptions) {
         availableOptions = newAvailableOptions;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 }
