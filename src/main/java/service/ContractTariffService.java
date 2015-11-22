@@ -47,6 +47,24 @@ public class ContractTariffService {
         transaction.commit();
     }
 
+    public void upsertTariff(final long id, final String name, final double monthlyCost, final List<ContractOption> availableOptions) {
+        ContractTariff tariff;
+        if (id != 0L) {
+            tariff = getById(id);
+        }
+        else {
+            tariff = new ContractTariff();
+        }
+
+        tariff.setName(name);
+        tariff.setMonthlyCost(monthlyCost);
+        tariff.setAvailableOptions(availableOptions);
+
+        transaction.begin();
+        tariffDao.merge(tariff);
+        transaction.commit();
+    }
+
     public List<ContractTariff> getActiveTariffs() {
         TypedQuery<ContractTariff> namedQuery = entityManager
                 .createNamedQuery("ContractTariff.getAllActive", ContractTariff.class);

@@ -64,23 +64,22 @@ public class ProductsSettingsServlet extends HttpServlet {
             resp.sendRedirect("/tariffs");
         }
 
-
-//        super.doGet(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String actionPath = req.getRequestURI();
 
-        Pattern editPattern = Pattern.compile("^/tariffs/edit/(\\d+)$");
-        Matcher matcher = editPattern.matcher(actionPath);
-        long tariffId = 0L;
-        if (matcher.matches()) {
-            String tariffIdString = matcher.group(1);
-            tariffId = Long.parseLong(tariffIdString);
-        }
+        Matcher tariffEditMatcher = tariffEditPattern.matcher(actionPath);
+        // TODO: 23.11.2015 think about normal routing
+        boolean tariffEdited = tariffEditMatcher.matches();
 
-        if ("/tariffs".equals(actionPath)) {
+        if ("/tariffs".equals(actionPath) || tariffEdited) {
+            long tariffId = 0L;
+            if (tariffEdited) {
+                tariffId = Long.parseLong(tariffEditMatcher.group(1));
+            }
+
             String tariffName = req.getParameter("tariff_name");
             Double monthlyPrice = Double.parseDouble(req.getParameter("monthly_cost"));
             ArrayList<ContractOption> tariffOptions = new ArrayList<ContractOption>();
@@ -91,9 +90,9 @@ public class ProductsSettingsServlet extends HttpServlet {
                     tariffOptions.add(contractOptionService.getById(Integer.parseInt(optionId)));
                 }
             }
-            contractTariffService.addTariff(tariffName, monthlyPrice, tariffOptions);
+            contractTariffService.upsertTariff(tariffId, tariffName, monthlyPrice, tariffOptions);
 
-            doGet(req, resp);
+            resp.sendRedirect("/tariffs");
         }
         if ("/tariffs/add-option".equals(actionPath)) {
             String optionName = req.getParameter("option_name");
@@ -102,23 +101,6 @@ public class ProductsSettingsServlet extends HttpServlet {
 
             contractOptionService.addOption(optionName, connectionCost, monthlyCost);
             doGet(req, resp);
-        }
-
-        if (tariffId != 0L) {
-            String tariffName = req.getParameter("tariff_name");
-            Double monthlyPrice = Double.parseDouble(req.getParameter("monthly_cost"));
-            ArrayList<ContractOption> tariffOptions = new ArrayList<ContractOption>();
-            String[] selectedOptions = req.getParameterValues("selected_options[]");
-
-            if (selectedOptions != null) {
-                for (String optionId : selectedOptions) {
-                    tariffOptions.add(contractOptionService.getById(Integer.parseInt(optionId)));
-                }
-            }
-
-            contractTariffService.updateTariff(tariffId, tariffName, monthlyPrice, tariffOptions);
-
-            resp.sendRedirect("/tariffs");
         }
     }
 }
