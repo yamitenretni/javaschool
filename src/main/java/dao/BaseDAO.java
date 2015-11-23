@@ -2,9 +2,6 @@ package dao;
 
 import java.util.List;
 
-/**
- * Created by Лена on 08.11.2015.
- */
 public interface BaseDAO<T> {
     T merge(T entity);
 

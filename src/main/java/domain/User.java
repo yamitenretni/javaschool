@@ -26,12 +26,12 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    public User() {
+    }
+
     public User(final String newLogin, final String newPassword) {
         login = newLogin;
         password = newPassword;
-    }
-
-    public User() {
     }
 
     public long getId() {

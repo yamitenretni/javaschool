@@ -10,27 +10,32 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ProductsSettingsServlet extends HttpServlet {
-    private ContractOptionService contractOptionService;
-    private ContractTariffService contractTariffService;
+    /**
+     * Get service for options
+     */
+    private final ContractOptionService contractOptionService = new ContractOptionService();
+    /**
+     * Get service for tariffs
+     */
+    private final ContractTariffService contractTariffService = new ContractTariffService();
 
-    private Pattern tariffAddPattern;
-    private Pattern tariffEditPattern;
-    private Pattern tariffDeletePattern;
-
-
-    @Override
-    public void init() throws ServletException {
-        contractTariffService = new ContractTariffService();
-        contractOptionService = new ContractOptionService();
-
-        tariffAddPattern = Pattern.compile("^/tariffs/add$");
-        tariffEditPattern = Pattern.compile("^/tariffs/edit/(\\d+)$");
-        tariffDeletePattern = Pattern.compile("^/tariffs/delete/(\\d+)$");
-    }
+    /**
+     * URL regexp for adding tariff
+     */
+    private final Pattern tariffAddPattern = Pattern.compile("^/tariffs/add$");
+    /**
+     * URL regexp for editing tariff
+     */
+    private final Pattern tariffEditPattern = Pattern.compile("^/tariffs/edit/(\\d+)$");
+    /**
+     * URL regexp for deleting tariff
+     */
+    private final Pattern tariffDeletePattern = Pattern.compile("^/tariffs/delete/(\\d+)$");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -108,7 +113,7 @@ public class ProductsSettingsServlet extends HttpServlet {
 
             String tariffName = req.getParameter("tariff_name");
             Double monthlyPrice = Double.parseDouble(req.getParameter("monthly_cost"));
-            ArrayList<ContractOption> tariffOptions = new ArrayList<ContractOption>();
+            List<ContractOption> tariffOptions = new ArrayList<>();
             String[] selectedOptions = req.getParameterValues("selected_options[]");
 
             if (selectedOptions != null) {

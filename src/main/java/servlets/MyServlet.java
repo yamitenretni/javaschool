@@ -9,12 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class MyServlet extends HttpServlet {
-    private UserService userService;
-
-    @Override
-    public void init() throws ServletException {
-        userService = new UserService();
-    }
+    private final UserService userService = new UserService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

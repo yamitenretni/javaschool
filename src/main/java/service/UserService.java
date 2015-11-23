@@ -15,7 +15,7 @@ public class UserService {
     private EntityManager entityManager = TransactionManager.getInstance().getEntityManager();
     private EntityTransaction transaction = entityManager.getTransaction();
 
-    private BaseDAO<User> userDao = new BaseDAOImpl<User>();
+    private BaseDAO<User> userDao = new BaseDAOImpl<>();
 
     public void addUser(final String login, final String password) {
         User user = new User();

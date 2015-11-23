@@ -31,14 +31,14 @@ public class ContractTariff {
     public ContractTariff() {
     }
 
-    public long getId() {
-        return id;
-    }
-
     public ContractTariff(final String newName, final double newMonthlyCost, final List<ContractOption> newAvailableOptions) {
         name = newName;
         monthlyCost = newMonthlyCost;
         availableOptions = newAvailableOptions;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getName() {
