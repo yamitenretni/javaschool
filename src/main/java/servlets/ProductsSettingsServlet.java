@@ -17,14 +17,17 @@ public class ProductsSettingsServlet extends HttpServlet {
     private ContractOptionService contractOptionService;
     private ContractTariffService contractTariffService;
 
+    private Pattern tariffAddPattern;
     private Pattern tariffEditPattern;
     private Pattern tariffDeletePattern;
+
 
     @Override
     public void init() throws ServletException {
         contractTariffService = new ContractTariffService();
         contractOptionService = new ContractOptionService();
 
+        tariffAddPattern = Pattern.compile("^/tariffs/add$");
         tariffEditPattern = Pattern.compile("^/tariffs/edit/(\\d+)$");
         tariffDeletePattern = Pattern.compile("^/tariffs/delete/(\\d+)$");
     }
@@ -35,18 +38,35 @@ public class ProductsSettingsServlet extends HttpServlet {
 
         Matcher tariffEditMatcher = tariffEditPattern.matcher(actionPath);
         Matcher tariffDeleteMatcher = tariffDeletePattern.matcher(actionPath);
+        Matcher tariffAddMatcher = tariffAddPattern.matcher(actionPath);
 
+        /**
+         * Get tariff's list
+         */
         if ("/tariffs".equals(actionPath)) {
             req.setAttribute("tariffs", contractTariffService.getActiveTariffs());
-            req.setAttribute("options", contractOptionService.getActiveOptions());
             req.getRequestDispatcher("/jsp/tariffs.jsp").forward(req, resp);
         }
 
+        /**
+         * Get tariff add form
+         */
+        if (tariffAddMatcher.matches()) {
+            req.setAttribute("options", contractOptionService.getActiveOptions());
+            req.getRequestDispatcher("/jsp/add-tariff.jsp").forward(req, resp);
+        }
+
+        /**
+         * Get options management page
+         */
         if ("/tariffs/add-option".equals(actionPath)) {
             req.setAttribute("options", contractOptionService.getActiveOptions());
             req.getRequestDispatcher("/jsp/add-option.jsp").forward(req, resp);
         }
 
+        /**
+         * Get tariff edit form
+         */
         if (tariffEditMatcher.matches()) {
             long tariffId = Long.parseLong(tariffEditMatcher.group(1));
 
@@ -56,6 +76,9 @@ public class ProductsSettingsServlet extends HttpServlet {
             req.getRequestDispatcher("/jsp/edit-tariff.jsp").forward(req, resp);
         }
 
+        /**
+         * Get tariff delete page and delete form
+         */
         if (tariffDeleteMatcher.matches()) {
             long tariffId = Long.parseLong(tariffDeleteMatcher.group(1));
 
@@ -70,13 +93,16 @@ public class ProductsSettingsServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String actionPath = req.getRequestURI();
 
+        Matcher tariffAddMatcher = tariffAddPattern.matcher(actionPath);
         Matcher tariffEditMatcher = tariffEditPattern.matcher(actionPath);
         // TODO: 23.11.2015 think about normal routing
-        boolean tariffEdited = tariffEditMatcher.matches();
 
-        if ("/tariffs".equals(actionPath) || tariffEdited) {
+        /**
+         * Save tariff
+         */
+        if (tariffAddMatcher.matches() || tariffEditMatcher.matches()) {
             long tariffId = 0L;
-            if (tariffEdited) {
+            if (tariffEditMatcher.matches()) {
                 tariffId = Long.parseLong(tariffEditMatcher.group(1));
             }
 
@@ -94,6 +120,10 @@ public class ProductsSettingsServlet extends HttpServlet {
 
             resp.sendRedirect("/tariffs");
         }
+
+        /**
+         * Save option
+         */
         if ("/tariffs/add-option".equals(actionPath)) {
             String optionName = req.getParameter("option_name");
             Double connectionCost = Double.parseDouble(req.getParameter("connection_cost"));

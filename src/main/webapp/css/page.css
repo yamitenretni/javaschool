@@ -1,6 +1,7 @@
 .page {
-    width: 300px;
+    width: 960px;
     padding: 20px;
+    margin: 0 auto;
 }
 .page__alert {
     margin-bottom: 20px;
