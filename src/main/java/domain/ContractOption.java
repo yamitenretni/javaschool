@@ -58,7 +58,7 @@ public class ContractOption {
     }
 
     public void setMonthlyCost(final double newMonthlyCost) {
-        this.monthlyCost = newMonthlyCost;
+        monthlyCost = newMonthlyCost;
     }
 
     public boolean isDeleted() {

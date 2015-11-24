@@ -10,9 +10,9 @@
 <body>
 <div class="page">
     <a href="/tariffs/add" class="btn btn-primary">Add Tariff</a>
-    <a href="/tariffs/add-option" class="btn">Manage Options</a>
+    <a href="/options" class="btn">Manage Options</a>
     <table class="table">
-        <caption>Tariffs:</caption>
+        <caption>All active tariffs:</caption>
         <thead>
         <tr>
             <th>Name</th>

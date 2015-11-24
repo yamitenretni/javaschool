@@ -27,5 +27,9 @@
         <servlet-name>ProductSettingsServlet</servlet-name>
         <url-pattern>/tariffs/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ProductSettingsServlet</servlet-name>
+        <url-pattern>/options/*</url-pattern>
+    </servlet-mapping>
 
 </web-app>

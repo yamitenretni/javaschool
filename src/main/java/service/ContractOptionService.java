@@ -57,6 +57,30 @@ public class ContractOptionService {
     }
 
     /**
+     * Add or update option in database
+     * @param id option's id in database, if =0L then new option will be insert in database
+     * @param name option's name
+     * @param connectionCost option's connection price
+     * @param monthlyCost option's regular price
+     */
+    public void upsertOption(final long id, final String name, final double connectionCost, final double monthlyCost) {
+        ContractOption option;
+        if (id != 0L) {
+            option = optionDao.getById(ContractOption.class, id);
+        }
+        else {
+            option = new ContractOption();
+        }
+        option.setName(name);
+        option.setConnectionCost(connectionCost);
+        option.setMonthlyCost(monthlyCost);
+
+        transaction.begin();
+        optionDao.merge(option);
+        transaction.commit();
+    }
+
+    /**
      * Delete option with the specified id
      * @param id option's id
      */
