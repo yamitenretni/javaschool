@@ -40,7 +40,6 @@
         </div>
 
         <button type="submit" class="btn btn-primary" name="requestType" value="submit">Next step</button>
-        <button type="submit" class="btn btn-primary" name="requestType" value="cancel">Cancel</button>
 
     </form>
 </div>

@@ -4,6 +4,8 @@ import domain.ContractOption;
 import service.ContractOptionService;
 import service.ContractTariffService;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -48,7 +50,10 @@ public class ProductsSettingsServlet extends HttpServlet {
      * URL regexp for deleting option
      */
     private final Pattern optionDeletePattern = Pattern.compile("^/options/delete/(\\d+)$");
-
+    /**
+     * URL regexp for return options for tariff
+     */
+    private final Pattern tariffOptionsPattern = Pattern.compile("^/tariffs/options/(\\d+)$");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -61,6 +66,8 @@ public class ProductsSettingsServlet extends HttpServlet {
         Matcher optionAddMatcher = optionAddPattern.matcher(actionPath);
         Matcher optionEditMatcher = optionEditPattern.matcher(actionPath);
         Matcher optionDeleteMatcher = optionDeletePattern.matcher(actionPath);
+
+        Matcher tariffOptionsMatcher = tariffOptionsPattern.matcher(actionPath);
 
         /**
          * Get tariffs list
@@ -137,6 +144,26 @@ public class ProductsSettingsServlet extends HttpServlet {
             contractOptionService.deleteOption(optionId);
 
             resp.sendRedirect("/options");
+        }
+
+        /**
+         * Get options for tariff
+         */
+        if (tariffOptionsMatcher.matches()) {
+            long tariffId = Long.parseLong(tariffOptionsMatcher.group(1));
+            JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+
+            for (ContractOption option : contractTariffService.getById(tariffId).getAvailableOptions()) {
+                jsonArrayBuilder.add(Json.createObjectBuilder()
+                        .add("id", option.getId())
+                        .add("name", option.getName())
+                        .add("connectionCost", option.getConnectionCost())
+                        .add("monthlyCost", option.getMonthlyCost()
+                        ));
+            }
+
+            resp.setContentType("application/json");
+            resp.getWriter().print(jsonArrayBuilder.build());
         }
 
     }
