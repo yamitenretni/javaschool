@@ -32,7 +32,7 @@ public class ContractOptionService {
     /**
      * Get option by id from database
      * @param id option's id
-     * @return founded option
+     * @return found option
      */
     public final ContractOption getById(final long id) {
         ContractOption option = optionDao.getById(ContractOption.class, id);

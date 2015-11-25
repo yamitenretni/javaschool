@@ -18,6 +18,10 @@
         <servlet-name>ProductSettingsServlet</servlet-name>
         <servlet-class>servlets.ProductsSettingsServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ClientManagementServlet</servlet-name>
+        <servlet-class>servlets.ClientManagementServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>MyTestServlet</servlet-name>
@@ -30,6 +34,10 @@
     <servlet-mapping>
         <servlet-name>ProductSettingsServlet</servlet-name>
         <url-pattern>/options/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ClientManagementServlet</servlet-name>
+        <url-pattern>/clients/*</url-pattern>
     </servlet-mapping>
 
 </web-app>
