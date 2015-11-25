@@ -17,6 +17,14 @@ public class UserService {
 
     private BaseDAO<User> userDao = new BaseDAOImpl<>();
 
+    public User addUser(final User user) {
+        transaction.begin();
+        User updatedUser = userDao.merge(user);
+        transaction.commit();
+
+        return updatedUser;
+    }
+
     public void addUser(final String login, final String password) {
         User user = new User();
         user.setLogin(login);

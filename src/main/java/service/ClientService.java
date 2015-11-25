@@ -41,15 +41,27 @@ public class ClientService {
     }
 
     /**
-     * Add or update client's common info
-     * @param id
-     * @param firstName
-     * @param lastName
-     * @param birthDate
-     * @param passportData
+     * Add or update client
+     * @param client client object
      * @return created or updated client
      */
-    public final Client upsertClient (final long id, final String firstName, final String lastName, final Date birthDate, final String passportData) {
+    public final Client upsertClient(final Client client) {
+        transaction.begin();
+        Client updatedClient = clientDao.merge(client);
+        transaction.commit();
+
+        return updatedClient;
+    }
+    /**
+     * Add or update client's common info
+     * @param id client's id in database, if =0L then new client will be inserted in database
+     * @param firstName client's first name
+     * @param lastName client's last name
+     * @param birthDate client's date of birth
+     * @param passportData client's passport
+     * @return created or updated client
+     */
+    public final Client upsertClient(final long id, final String firstName, final String lastName, final Date birthDate, final String passportData) {
         Client client;
         if (id != 0L) {
             client = getById(id);

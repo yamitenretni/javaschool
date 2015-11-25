@@ -58,7 +58,7 @@ public class ContractOptionService {
 
     /**
      * Add or update option in database
-     * @param id option's id in database, if =0L then new option will be insert in database
+     * @param id option's id in database, if =0L then new option will be inserted in database
      * @param name option's name
      * @param connectionCost option's connection price
      * @param monthlyCost option's regular price

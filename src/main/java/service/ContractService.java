@@ -6,6 +6,7 @@ import dao.TransactionManager;
 import domain.Client;
 import domain.Contract;
 import domain.ContractOption;
+import domain.ContractTariff;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -31,6 +32,7 @@ public class ContractService {
 
     /**
      * Get contract by id from database
+     *
      * @param id contract's id
      * @return found contract
      */
@@ -40,29 +42,43 @@ public class ContractService {
 
     /**
      * Add or update contract in database
-     * @param id contract's id in database
-     * @param number contract phone number
-     * @param client contract's owner
+     * @param contract contract object
+     * @return created or updated contract
+     */
+    public final Contract upsertContract(final Contract contract) {
+        transaction.begin();
+        Contract updatedContract = contractDao.merge(contract);
+        transaction.commit();
+
+        return updatedContract;
+    }
+    /**
+     * Add or update contract in database
+     *
+     * @param id      contract's id in database
+     * @param client  contract's owner
+     * @param number  contract phone number
+     * @param tariff  contract's tariff
      * @param options list of activated options
      * @return created or updated contract
      */
-    public final Contract upsertContract(final long id, final String number, final Client client, final List<ContractOption> options) {
+    public final Contract upsertContract(final long id, final Client client, final String number, final ContractTariff tariff, final List<ContractOption> options) {
         Contract contract;
         if (id != 0L) {
             contract = getById(id);
-        }
-        else {
+        } else {
             contract = new Contract();
         }
 
-        contract.setNumber(number);
         contract.setClient(client);
+        contract.setNumber(number);
+        contract.setTariff(tariff);
         contract.setActivatedOptions(options);
 
         transaction.begin();
-        contractDao.merge(contract);
+        Contract updatedContract = contractDao.merge(contract);
         transaction.commit();
 
-        return contract;
+        return updatedContract;
     }
 }

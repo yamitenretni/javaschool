@@ -172,6 +172,8 @@ public class ProductsSettingsServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+
         final String actionPath = req.getRequestURI();
 
         Matcher tariffAddMatcher = tariffAddPattern.matcher(actionPath);

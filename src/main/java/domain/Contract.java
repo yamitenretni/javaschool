@@ -19,6 +19,10 @@ public class Contract {
     @Column(name = "number")
     private String number;
 
+    @ManyToOne
+    @JoinColumn(name = "tariff_id")
+    private ContractTariff tariff;
+
     @ManyToMany
     @JoinTable(name = "contract_options",
             joinColumns = {@JoinColumn(name = "contract_id")},
@@ -35,9 +39,10 @@ public class Contract {
     public Contract() {
     }
 
-    public Contract(final Client newClient, final String newNumber, final List<ContractOption> newActivatedOptions) {
+    public Contract(final Client newClient, final String newNumber, final ContractTariff newTariff, final List<ContractOption> newActivatedOptions) {
         client = newClient;
         number = newNumber;
+        tariff = newTariff;
         activatedOptions = newActivatedOptions;
     }
 
@@ -59,6 +64,14 @@ public class Contract {
 
     public void setNumber(final String newNumber) {
         number = newNumber;
+    }
+
+    public ContractTariff getTariff() {
+        return tariff;
+    }
+
+    public void setTariff(final ContractTariff newTariff) {
+        tariff = newTariff;
     }
 
     public List<ContractOption> getActivatedOptions() {
