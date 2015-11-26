@@ -16,48 +16,52 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Servlet for tariffs and options settings.
+ */
 public class ProductsSettingsServlet extends HttpServlet {
     /**
-     * Get service for options
+     * Get service for options.
      */
-    private final ContractOptionService contractOptionService = new ContractOptionService();
+    private final ContractOptionService contractSvc = new ContractOptionService();
     /**
-     * Get service for tariffs
+     * Get service for tariffs.
      */
-    private final ContractTariffService contractTariffService = new ContractTariffService();
+    private final ContractTariffService tariffSvc = new ContractTariffService();
 
     /**
-     * URL regexp for adding tariff
+     * URL regexp for adding tariff.
      */
     private final Pattern tariffAddPattern = Pattern.compile("^/tariffs/add$");
     /**
-     * URL regexp for editing tariff
+     * URL regexp for editing tariff.
      */
     private final Pattern tariffEditPattern = Pattern.compile("^/tariffs/edit/(\\d+)$");
     /**
-     * URL regexp for deleting tariff
+     * URL regexp for deleting tariff.
      */
     private final Pattern tariffDeletePattern = Pattern.compile("^/tariffs/delete/(\\d+)$");
     /**
-     * URL regexp for adding option
+     * URL regexp for adding option.
      */
     private final Pattern optionAddPattern = Pattern.compile("^/options/add$");
     /**
-     * URL regexp for editing option
+     * URL regexp for editing option.
      */
     private final Pattern optionEditPattern = Pattern.compile("^/options/edit/(\\d+)$");
     /**
-     * URL regexp for deleting option
+     * URL regexp for deleting option.
      */
     private final Pattern optionDeletePattern = Pattern.compile("^/options/delete/(\\d+)$");
     /**
-     * URL regexp for return options for tariff
+     * URL regexp for return options for tariff.
      */
     private final Pattern tariffOptionsPattern = Pattern.compile("^/tariffs/options/(\\d+)$");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String actionPath = req.getRequestURI();
+        final String refPath = req.getHeader("referer");
 
         Matcher tariffAddMatcher = tariffAddPattern.matcher(actionPath);
         Matcher tariffEditMatcher = tariffEditPattern.matcher(actionPath);
@@ -70,90 +74,90 @@ public class ProductsSettingsServlet extends HttpServlet {
         Matcher tariffOptionsMatcher = tariffOptionsPattern.matcher(actionPath);
 
         /**
-         * Get tariffs list
+         * Get tariffs list.
          */
         if ("/tariffs".equals(actionPath)) {
-            req.setAttribute("tariffs", contractTariffService.getActiveTariffs());
+            req.setAttribute("tariffs", tariffSvc.getActiveTariffs());
             req.getRequestDispatcher("/jsp/tariffs.jsp").forward(req, resp);
         }
 
         /**
-         * Get tariff add form
+         * Get tariff add form.
          */
         if (tariffAddMatcher.matches()) {
-            req.setAttribute("options", contractOptionService.getActiveOptions());
+            req.setAttribute("options", contractSvc.getActiveOptions());
             req.getRequestDispatcher("/jsp/add-tariff.jsp").forward(req, resp);
         }
 
         /**
-         * Get tariff edit form
+         * Get tariff edit form.
          */
         if (tariffEditMatcher.matches()) {
             long tariffId = Long.parseLong(tariffEditMatcher.group(1));
 
             // TODO: 24.11.2015 set map (tariff, checked) instead of two lists
-            req.setAttribute("editedTariff", contractTariffService.getById(tariffId));
-            req.setAttribute("options", contractOptionService.getActiveOptions());
+            req.setAttribute("editedTariff", tariffSvc.getById(tariffId));
+            req.setAttribute("options", contractSvc.getActiveOptions());
 
             req.getRequestDispatcher("/jsp/edit-tariff.jsp").forward(req, resp);
         }
 
         /**
-         * Get tariff delete page and delete form
+         * Delete tariff.
          */
         if (tariffDeleteMatcher.matches()) {
             long tariffId = Long.parseLong(tariffDeleteMatcher.group(1));
 
-            contractTariffService.deleteTariff(tariffId);
+            tariffSvc.deleteTariff(tariffId);
 
-            resp.sendRedirect("/tariffs");
+            resp.sendRedirect(refPath);
         }
 
         /**
-         * Get options list
+         * Get options list.
          */
         if ("/options".equals(actionPath)) {
-            req.setAttribute("options", contractOptionService.getActiveOptions());
+            req.setAttribute("options", contractSvc.getActiveOptions());
             req.getRequestDispatcher("/jsp/options.jsp").forward(req, resp);
         }
 
         /**
-         * Get option add form
+         * Get option add form.
          */
         if (optionAddMatcher.matches()) {
             req.getRequestDispatcher("/jsp/add-option.jsp").forward(req, resp);
         }
 
         /**
-         * Get option edit form
+         * Get option edit form.
          */
         if (optionEditMatcher.matches()) {
             long optionId = Long.parseLong(optionEditMatcher.group(1));
 
-            req.setAttribute("editedOption", contractOptionService.getById(optionId));
+            req.setAttribute("editedOption", contractSvc.getById(optionId));
 
             req.getRequestDispatcher("/jsp/edit-option.jsp").forward(req, resp);
         }
 
         /**
-         * Get option delete page and delete form
+         * Delete option.
          */
         if (optionDeleteMatcher.matches()) {
             long optionId = Long.parseLong(optionDeleteMatcher.group(1));
 
-            contractOptionService.deleteOption(optionId);
+            contractSvc.deleteOption(optionId);
 
-            resp.sendRedirect("/options");
+            resp.sendRedirect(refPath);
         }
 
         /**
-         * Get options for tariff
+         * Get options for tariff.
          */
         if (tariffOptionsMatcher.matches()) {
             long tariffId = Long.parseLong(tariffOptionsMatcher.group(1));
             JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
 
-            for (ContractOption option : contractTariffService.getById(tariffId).getAvailableOptions()) {
+            for (ContractOption option : tariffSvc.getById(tariffId).getAvailableOptions()) {
                 jsonArrayBuilder.add(Json.createObjectBuilder()
                         .add("id", option.getId())
                         .add("name", option.getName())
@@ -184,7 +188,7 @@ public class ProductsSettingsServlet extends HttpServlet {
         
         // TODO: 23.11.2015 think about normal routing
         /**
-         * Save tariff
+         * Save tariff.
          */
         if (tariffAddMatcher.matches() || tariffEditMatcher.matches()) {
             long tariffId = 0L;
@@ -199,16 +203,16 @@ public class ProductsSettingsServlet extends HttpServlet {
 
             if (selectedOptions != null) {
                 for (String optionId : selectedOptions) {
-                    tariffOptions.add(contractOptionService.getById(Integer.parseInt(optionId)));
+                    tariffOptions.add(contractSvc.getById(Integer.parseInt(optionId)));
                 }
             }
-            contractTariffService.upsertTariff(tariffId, tariffName, monthlyPrice, tariffOptions);
+            tariffSvc.upsertTariff(tariffId, tariffName, monthlyPrice, tariffOptions);
 
             resp.sendRedirect("/tariffs");
         }
 
         /**
-         * Save option
+         * Save option.
          */
         if (optionAddMatcher.matches() || optionEditMatcher.matches()) {
             long optionId = 0L;
@@ -220,7 +224,7 @@ public class ProductsSettingsServlet extends HttpServlet {
             Double connectionCost = Double.parseDouble(req.getParameter("connection_cost"));
             Double monthlyCost = Double.parseDouble(req.getParameter("monthly_cost"));
 
-            contractOptionService.upsertOption(optionId, optionName, connectionCost, monthlyCost);
+            contractSvc.upsertOption(optionId, optionName, connectionCost, monthlyCost);
 
             resp.sendRedirect("/options");
         }

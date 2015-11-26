@@ -1,7 +1,17 @@
 package servlets;
 
-import domain.*;
-import service.*;
+import domain.Client;
+import domain.Contract;
+import domain.ContractOption;
+import domain.ContractTariff;
+import domain.User;
+import form.CartContractForm;
+import form.CartForm;
+import service.ClientService;
+import service.ContractOptionService;
+import service.ContractService;
+import service.ContractTariffService;
+import service.UserService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,51 +31,61 @@ import java.util.regex.Pattern;
 
 public class ClientManagementServlet extends HttpServlet {
     /**
-     * Get service for clients
+     * Get service for clients.
      */
-    private final ClientService clientService = new ClientService();
+    private final ClientService clientSvc = new ClientService();
     /**
-     * Get service for users
+     * Get service for users.
      */
-    private final UserService userService = new UserService();
+    private final UserService userSvc = new UserService();
     /**
-     * Get service for contracts
+     * Get service for contracts.
      */
-    private final ContractService contactService = new ContractService();
+    private final ContractService contactSvc = new ContractService();
     /**
-     * Get service for tariffs
+     * Get service for tariffs.
      */
-    private final ContractTariffService contractTariffService = new ContractTariffService();
+    private final ContractTariffService tariffSvc = new ContractTariffService();
     /**
-     * Get service for options
+     * Get service for options.
      */
-    private final ContractOptionService contractOptionService = new ContractOptionService();
+    private final ContractOptionService optionSvc = new ContractOptionService();
 
     /**
-     * URL regexp for the client list
+     * URL regexp for the client list.
      */
     private final Pattern clientListPattern = Pattern.compile("^/clients$");
     /**
-     * URL regexp for the client page
+     * URL regexp for the client page.
      */
     private final Pattern clientPagePattern = Pattern.compile("^/clients/(\\d+)$");
     /**
-     * URL regexp for the first step of client adding
+     * URL regexp for the first step of client adding.
      */
     private final Pattern clientAddFirstPattern = Pattern.compile("^/clients/add/step1$");
     /**
-     * URL regexp for the first step of client adding
+     * URL regexp for the first step of client adding.
      */
     private final Pattern clientAddSecondPattern = Pattern.compile("^/clients/add/step2$");
     /**
-     * URL regexp for the third step of client adding
+     * URL regexp for the third step of client adding.
      */
     private final Pattern clientAddThirdPattern = Pattern.compile("^/clients/add/step3$");
 
     /**
-     * URL regexp for the contract page
+     * URL regexp for the contract page.
      */
     private final Pattern contractPagePattern = Pattern.compile("^/contracts/(\\d+)$");
+
+    /**
+     * URL regexp for deactivating contract option.
+     */
+    private final Pattern deactivateOptionPattern = Pattern.compile("^/contracts/(\\d+)/deactivate/(\\d+)$");
+
+    /**
+     * URL regexp for cancel deactivation of option from cart.
+     */
+    private final Pattern cancelDeactivateOptionPattern = Pattern.compile("^/contracts/(\\d+)/deactivate/(\\d+)/cancel$");
 
     /**
      * Date format for parsing date.
@@ -75,56 +95,110 @@ public class ClientManagementServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String actionPath = req.getRequestURI();
+        final String refPath = req.getHeader("referer");
+
         Matcher clientAddFirstMatcher = clientAddFirstPattern.matcher(actionPath);
         Matcher clientAddSecondMatcher = clientAddSecondPattern.matcher(actionPath);
         Matcher clientAddThirdMatcher = clientAddThirdPattern.matcher(actionPath);
+
         Matcher clientListMatcher = clientListPattern.matcher(actionPath);
         Matcher clientPageMatcher = clientPagePattern.matcher(actionPath);
+
         Matcher contractPageMatcher = contractPagePattern.matcher(actionPath);
 
+        Matcher deactivateOptionMatcher = deactivateOptionPattern.matcher(actionPath);
+        Matcher cancelDeactivateOptionMatcher = cancelDeactivateOptionPattern.matcher(actionPath);
+
         /**
-         * Get client list
+         * Get client list.
          */
         if (clientListMatcher.matches()) {
-            req.setAttribute("clients", clientService.getClients());
+            req.setAttribute("clients", clientSvc.getClients());
             req.getRequestDispatcher("/jsp/clients.jsp").forward(req, resp);
         }
         /**
-         * Get client info
+         * Get client info.
          */
         if (clientPageMatcher.matches()) {
             long clientId = Long.parseLong(clientPageMatcher.group(1));
-            req.setAttribute("client", clientService.getById(clientId));
+            req.setAttribute("client", clientSvc.getById(clientId));
             req.getRequestDispatcher("/jsp/read-client.jsp").forward(req, resp);
         }
 
         /**
-         * Get first step of client registration
+         * Get first step of client registration.
          */
         if (clientAddFirstMatcher.matches()) {
             req.getRequestDispatcher("/jsp/add-client-step1.jsp").forward(req, resp);
         }
         /**
-         * Get second step of client registration
+         * Get second step of client registration.
          */
         if (clientAddSecondMatcher.matches()) {
-            req.setAttribute("tariffs", contractTariffService.getActiveTariffs());
+            req.setAttribute("tariffs", tariffSvc.getActiveTariffs());
             req.getRequestDispatcher("/jsp/add-client-step2.jsp").forward(req, resp);
         }
         /**
-         * Get third step of client registration
+         * Get third step of client registration.
          */
         if (clientAddThirdMatcher.matches()) {
             req.getRequestDispatcher("/jsp/add-client-step3.jsp").forward(req, resp);
         }
 
         /**
-         * Get contract info
+         * Get contract info.
          */
         if (contractPageMatcher.matches()) {
             long contractId = Long.parseLong(contractPageMatcher.group(1));
-            req.setAttribute("contract", contactService.getById(contractId));
+
+            req.setAttribute("contract", contactSvc.getById(contractId));
             req.getRequestDispatcher("/jsp/read-contract.jsp").forward(req, resp);
+        }
+
+        /**
+         * Deactivate contract option.
+         */
+        if (deactivateOptionMatcher.matches()) {
+            CartForm cartForm;
+            CartContractForm cartContractForm;
+
+            long contractId = Long.parseLong(deactivateOptionMatcher.group(1));
+            long optionId = Long.parseLong(deactivateOptionMatcher.group(2));
+            Contract contract = contactSvc.getById(contractId);
+            ContractOption option = optionSvc.getById(optionId);
+
+            HttpSession session = req.getSession();
+            if (session.getAttribute("cartForm") != null) {
+                cartForm = (CartForm) session.getAttribute("cartForm");
+
+            } else {
+                cartForm = new CartForm();
+            }
+
+            cartContractForm = cartForm.getCartContractForm(contract);
+            cartContractForm.addDeactivatedOption(option);
+
+            session.setAttribute("cartForm", cartForm);
+
+            resp.sendRedirect("/contracts/" + contractId);
+        }
+
+        /**
+         * Delete deactivated option from the cart.
+         */
+        if (cancelDeactivateOptionMatcher.matches()) {
+            long contractId = Long.parseLong(cancelDeactivateOptionMatcher.group(1));
+            long optionId = Long.parseLong(cancelDeactivateOptionMatcher.group(2));
+            Contract contract = contactSvc.getById(contractId);
+            ContractOption option = optionSvc.getById(optionId);
+
+            HttpSession session = req.getSession();
+            CartForm cartForm = (CartForm) session.getAttribute("cartForm");
+
+            CartContractForm cartContractForm = cartForm.getCartContractForm(contract);
+            cartContractForm.deleteDeactivatedOption(option);
+
+            resp.sendRedirect(refPath);
         }
 
     }
@@ -140,7 +214,7 @@ public class ClientManagementServlet extends HttpServlet {
         Matcher clientAddThirdMatcher = clientAddThirdPattern.matcher(actionPath);
 
         /**
-         * First step of client registration wizard submit
+         * First step of client registration wizard submit.
          */
         if (clientAddFirstMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
             User newClientUser = new User(req.getParameter("email"), req.getParameter("password"));
@@ -151,7 +225,13 @@ public class ClientManagementServlet extends HttpServlet {
                 e.printStackTrace();
             }
 
-            Client newClient = new Client(newClientUser, new ArrayList<Contract>(), req.getParameter("firstName"), req.getParameter("lastName"), birthDate, req.getParameter("passport"), req.getParameter("address"));
+            Client newClient = new Client(newClientUser,
+                    new ArrayList<Contract>(),
+                    req.getParameter("firstName"),
+                    req.getParameter("lastName"),
+                    birthDate,
+                    req.getParameter("passport"),
+                    req.getParameter("address"));
             HttpSession session = req.getSession();
             session.setAttribute("newClient", newClient);
 
@@ -159,18 +239,18 @@ public class ClientManagementServlet extends HttpServlet {
         }
 
         /**
-         * Second step of client registration wizard submit
+         * Second step of client registration wizard submit.
          */
         if (clientAddSecondMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
             // TODO: 26.11.2015 add redirect to the first step if session doesn't contain client
             HttpSession session = req.getSession();
             Client newClient = (Client) session.getAttribute("newClient");
-            ContractTariff tariff = contractTariffService.getById(Long.parseLong(req.getParameter("contractTariff")));
+            ContractTariff tariff = tariffSvc.getById(Long.parseLong(req.getParameter("contractTariff")));
             List<ContractOption> activatedOptions = new ArrayList<>();
             String[] selectedOptions = req.getParameterValues("selectedOptions[]");
             if (selectedOptions != null) {
                 for (String optionId : selectedOptions) {
-                    activatedOptions.add(contractOptionService.getById(Long.parseLong(optionId)));
+                    activatedOptions.add(optionSvc.getById(Long.parseLong(optionId)));
                 }
             }
 
@@ -182,19 +262,19 @@ public class ClientManagementServlet extends HttpServlet {
         }
 
         /**
-         * Third step of client registration wizard submit
+         * Third step of client registration wizard submit.
          */
         if (clientAddThirdMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
             HttpSession session = req.getSession();
             Contract newContract = (Contract) session.getAttribute("newContract");
             Client newClient = (Client) session.getAttribute("newClient");
 
-            User newUser = userService.addUser(newClient.getUser());
+            User newUser = userSvc.addUser(newClient.getUser());
             newClient.setUser(newUser);
 
-            newClient = clientService.upsertClient(newClient);
+            newClient = clientSvc.upsertClient(newClient);
             newContract.setClient(newClient);
-            newContract = contactService.upsertContract(newContract);
+            newContract = contactSvc.upsertContract(newContract);
 
             List<Contract> newClientContracts = newClient.getContracts();
 

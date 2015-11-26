@@ -17,7 +17,7 @@
         <tr>
             <th>Name</th>
             <th>Monthly cost</th>
-            <th>Avaliable options</th>
+            <th>Available options</th>
             <th></th>
             <th></th>
         </tr>
@@ -29,8 +29,8 @@
                 <td>${tariff.monthlyCost}</td>
                 <td>
                     <ul>
-                        <c:forEach items="${tariff.availableOptions}" var="tariffOpion">
-                            <li>${tariffOpion.name}</li>
+                        <c:forEach items="${tariff.availableOptions}" var="tariffOption">
+                            <li>${tariffOption.name}</li>
                         </c:forEach>
                     </ul>
                 </td>

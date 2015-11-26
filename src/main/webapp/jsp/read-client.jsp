@@ -47,7 +47,7 @@
                         </c:forEach>
                     </ul>
                 </td>
-                <td><a href="/contracts/${contract.id}" class="btn">Edit contract</a><br/>
+                <td><a href="/contracts/${contract.id}" class="btn">Contract info</a><br/>
                 <a href="/contracts/block/${contract.id}" class="btn">Block contract</a></td>
             </tr>
         </c:forEach>

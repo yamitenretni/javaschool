@@ -36,6 +36,7 @@
         </c:forEach>
         </tbody>
     </table>
+    <%@include file="/jsp/cart-block.jsp" %>
 </div>
 </body>
 </html>
