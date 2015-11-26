@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -18,7 +19,8 @@
         <div class="panel-body">
             <p><label>First name:</label> ${newClient.firstName}</p>
             <p><label>Last name:</label> ${newClient.lastName}</p>
-            <p><label>Date of birth:</label> ${newClient.birthDate}</p>
+            <p><label>Date of birth:</label> <fmt:formatDate pattern="dd.MM.yyyy"
+                                                             value="${client.birthDate}" /></p>
             <p><label>Passport data:</label> ${newClient.passportData}</p>
             <p><label>Address:</label> ${newClient.address}</p>
             <p><label>E-mail:</label> ${newClient.user.login}</p>

@@ -42,6 +42,14 @@ public class ClientManagementServlet extends HttpServlet {
     private final ContractOptionService contractOptionService = new ContractOptionService();
 
     /**
+     * URL regexp for the client list
+     */
+    private final Pattern clientListPattern = Pattern.compile("^/clients$");
+    /**
+     * URL regexp for the client page
+     */
+    private final Pattern clientPagePattern = Pattern.compile("^/clients/(\\d+)$");
+    /**
      * URL regexp for the first step of client adding
      */
     private final Pattern clientAddFirstPattern = Pattern.compile("^/clients/add/step1$");
@@ -65,6 +73,18 @@ public class ClientManagementServlet extends HttpServlet {
         Matcher clientAddFirstMatcher = clientAddFirstPattern.matcher(actionPath);
         Matcher clientAddSecondMatcher = clientAddSecondPattern.matcher(actionPath);
         Matcher clientAddThirdMatcher = clientAddThirdPattern.matcher(actionPath);
+        Matcher clientListMatcher = clientListPattern.matcher(actionPath);
+        Matcher clientPageMatcher = clientPagePattern.matcher(actionPath);
+
+        if (clientListMatcher.matches()) {
+            req.setAttribute("clients", clientService.getClients());
+            req.getRequestDispatcher("/jsp/clients.jsp").forward(req, resp);
+        }
+        if (clientPageMatcher.matches()) {
+            long clientId = Long.parseLong(clientPageMatcher.group(1));
+            req.setAttribute("client", clientService.getById(clientId));
+            req.getRequestDispatcher("/jsp/read-client.jsp").forward(req, resp);
+        }
 
         if (clientAddFirstMatcher.matches()) {
             req.getRequestDispatcher("/jsp/add-client-step1.jsp").forward(req, resp);
