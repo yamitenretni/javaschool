@@ -12,77 +12,87 @@ import javax.persistence.JoinColumn;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Client of mobile operator.
+ */
 @Entity
 @Table(name = "clients")
 public class Client {
 
     /**
-     * Automatically generated id of the client
+     * Automatically generated id of the client.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     /**
-     * User which connected with the client
+     * User which connected with the client.
      */
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     /**
-     * List of contracts (phones) of the client
+     * List of contracts (phones) of the client.
      */
     @OneToMany(mappedBy = "client")
     private List<Contract> contracts;
 
     /**
-     * Client's first name
+     * Client's first name.
      */
     @Column(name = "first_name")
     private String firstName;
 
     /**
-     * Client's last name
+     * Client's last name.
      */
     @Column(name = "last_name")
     private String lastName;
 
     /**
-     * Client's birth date
+     * Client's birth date.
      */
     @Column(name = "birth_date")
     private Date birthDate;
 
     /**
-     * Client's passport: all data in one line
+     * Client's passport: all data in one line.
      */
     @Column(name = "passport_data")
     private String passportData;
 
     /**
-     * Client's address: all data in one line
+     * Client's address: all data in one line.
      */
     @Column(name = "address")
     private String address;
 
     /**
-     * The blank constructor for the client
+     * The blank constructor for the client.
      */
     public Client() {
     }
 
     /**
-     * The main constructor for the client
-     * @param newUser user for the new client
-     * @param newContracts list of contracts (phones)
-     * @param newFirstName first name
-     * @param newLastName last name
-     * @param newBirthDate date of birth
+     * The main constructor for the client.
+     *
+     * @param newUser         user for the new client
+     * @param newContracts    list of contracts (phones)
+     * @param newFirstName    first name
+     * @param newLastName     last name
+     * @param newBirthDate    date of birth
      * @param newPassportData passport (one line)
-     * @param newAddress address (one line)
+     * @param newAddress      address (one line)
      */
-    public Client(final User newUser, final List<Contract> newContracts, final String newFirstName, final String newLastName, final Date newBirthDate, final String newPassportData, final String newAddress) {
+    public Client(final User newUser,
+                  final List<Contract> newContracts,
+                  final String newFirstName,
+                  final String newLastName,
+                  final Date newBirthDate,
+                  final String newPassportData,
+                  final String newAddress) {
         user = newUser;
         contracts = newContracts;
         firstName = newFirstName;
@@ -92,63 +102,138 @@ public class Client {
         address = newAddress;
     }
 
-    public long getId() {
+    /**
+     * id getter.
+     *
+     * @return client's id
+     */
+    public final long getId() {
         return id;
     }
 
-    public User getUser() {
+    /**
+     * user getter.
+     *
+     * @return client's linked user
+     */
+    public final User getUser() {
         return user;
     }
 
-    public void setUser(final User newUser) {
+    /**
+     * user setter.
+     *
+     * @param newUser user which will be linked to client
+     */
+    public final void setUser(final User newUser) {
         user = newUser;
     }
 
-    public List<Contract> getContracts() {
+    /**
+     * contracts getter.
+     *
+     * @return list of client's contracts
+     */
+    public final List<Contract> getContracts() {
         return contracts;
     }
 
-    public void setContracts(final List<Contract> newContracts) {
+    /**
+     * contracts setter.
+     *
+     * @param newContracts list of contracts
+     */
+    public final void setContracts(final List<Contract> newContracts) {
         contracts = newContracts;
     }
 
-    public String getFirstName() {
+    /**
+     * first name getter.
+     *
+     * @return client's first name
+     */
+    public final String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(final String newFirstName) {
+    /**
+     * first name setter.
+     *
+     * @param newFirstName client's first name
+     */
+    public final void setFirstName(final String newFirstName) {
         firstName = newFirstName;
     }
 
-    public String getLastName() {
+    /**
+     * last name getter.
+     *
+     * @return client's last name
+     */
+    public final String getLastName() {
         return lastName;
     }
 
-    public void setLastName(final String newLastName) {
+    /**
+     * last name setter.
+     *
+     * @param newLastName client's last name
+     */
+    public final void setLastName(final String newLastName) {
         lastName = newLastName;
     }
 
-    public Date getBirthDate() {
+    /**
+     * birth date getter.
+     *
+     * @return client's birth date
+     */
+    public final Date getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(final Date newBirthDate) {
+    /**
+     * birth date setter.
+     *
+     * @param newBirthDate client's birth date
+     */
+    public final void setBirthDate(final Date newBirthDate) {
         birthDate = newBirthDate;
     }
 
-    public String getPassportData() {
+    /**
+     * passport data getter.
+     *
+     * @return client's passport data
+     */
+    public final String getPassportData() {
         return passportData;
     }
 
-    public void setPassportData(final String newPassportData) {
+    /**
+     * passport data setter.
+     *
+     * @param newPassportData client's passport data
+     */
+    public final void setPassportData(final String newPassportData) {
         passportData = newPassportData;
     }
 
-    public String getAddress() {
+    /**
+     * address getter.
+     *
+     * @return client's address
+     */
+    public final String getAddress() {
         return address;
     }
 
-    public void setAddress(final String newAddress) {
+    /**
+     * address setter.
+     *
+     * @param newAddress client's address
+     */
+    public final void setAddress(final String newAddress) {
         address = newAddress;
     }
 }

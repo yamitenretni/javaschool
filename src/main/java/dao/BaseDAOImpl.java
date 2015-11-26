@@ -8,24 +8,29 @@ import java.util.List;
 
 /**
  * Implements main methods for dao.
+ *
  * @param <T> entity class
  */
 public class BaseDAOImpl<T> implements BaseDAO<T> {
     /**
-     * Get entity manager from TransactionManager
+     * Get entity manager from TransactionManager.
      */
-    private EntityManager entityManager = TransactionManager.getInstance().getEntityManager();
+    private EntityManager entityManager = TransactionManager.getInstance()
+                                                            .getEntityManager();
 
     /**
-     * Merge entity in database
+     * Merge entity in database.
+     *
      * @param entity merging entity
+     * @return added or updated entity
      */
-    public final T merge(T entity) {
+    public final T merge(final T entity) {
         return entityManager.merge(entity);
     }
 
     /**
      * Get list of all entities with asked type.
+     *
      * @param type entity class
      * @return list of objects
      */
@@ -41,13 +46,13 @@ public class BaseDAOImpl<T> implements BaseDAO<T> {
     }
 
     /**
-     * Get entity by id from database
+     * Get entity by id from database.
+     *
      * @param type entity class
-     * @param id id of object in database
+     * @param id   id of object in database
      * @return found object
      */
     public final T getById(final Class<T> type, final long id) {
-        T entity = entityManager.find(type, id);
-        return entity;
+        return entityManager.find(type, id);
     }
 }
