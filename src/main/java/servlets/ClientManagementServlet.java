@@ -63,6 +63,11 @@ public class ClientManagementServlet extends HttpServlet {
     private final Pattern clientAddThirdPattern = Pattern.compile("^/clients/add/step3$");
 
     /**
+     * URL regexp for the contract page
+     */
+    private final Pattern contractPagePattern = Pattern.compile("^/contracts/(\\d+)$");
+
+    /**
      * Date format for parsing date.
      */
     private final DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
@@ -75,26 +80,51 @@ public class ClientManagementServlet extends HttpServlet {
         Matcher clientAddThirdMatcher = clientAddThirdPattern.matcher(actionPath);
         Matcher clientListMatcher = clientListPattern.matcher(actionPath);
         Matcher clientPageMatcher = clientPagePattern.matcher(actionPath);
+        Matcher contractPageMatcher = contractPagePattern.matcher(actionPath);
 
+        /**
+         * Get client list
+         */
         if (clientListMatcher.matches()) {
             req.setAttribute("clients", clientService.getClients());
             req.getRequestDispatcher("/jsp/clients.jsp").forward(req, resp);
         }
+        /**
+         * Get client info
+         */
         if (clientPageMatcher.matches()) {
             long clientId = Long.parseLong(clientPageMatcher.group(1));
             req.setAttribute("client", clientService.getById(clientId));
             req.getRequestDispatcher("/jsp/read-client.jsp").forward(req, resp);
         }
 
+        /**
+         * Get first step of client registration
+         */
         if (clientAddFirstMatcher.matches()) {
             req.getRequestDispatcher("/jsp/add-client-step1.jsp").forward(req, resp);
         }
+        /**
+         * Get second step of client registration
+         */
         if (clientAddSecondMatcher.matches()) {
             req.setAttribute("tariffs", contractTariffService.getActiveTariffs());
             req.getRequestDispatcher("/jsp/add-client-step2.jsp").forward(req, resp);
         }
+        /**
+         * Get third step of client registration
+         */
         if (clientAddThirdMatcher.matches()) {
             req.getRequestDispatcher("/jsp/add-client-step3.jsp").forward(req, resp);
+        }
+
+        /**
+         * Get contract info
+         */
+        if (contractPageMatcher.matches()) {
+            long contractId = Long.parseLong(contractPageMatcher.group(1));
+            req.setAttribute("contract", contactService.getById(contractId));
+            req.getRequestDispatcher("/jsp/read-contract.jsp").forward(req, resp);
         }
 
     }
@@ -110,7 +140,7 @@ public class ClientManagementServlet extends HttpServlet {
         Matcher clientAddThirdMatcher = clientAddThirdPattern.matcher(actionPath);
 
         /**
-         * First step of client adding wizard submit
+         * First step of client registration wizard submit
          */
         if (clientAddFirstMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
             User newClientUser = new User(req.getParameter("email"), req.getParameter("password"));
@@ -129,7 +159,7 @@ public class ClientManagementServlet extends HttpServlet {
         }
 
         /**
-         * Second step of client adding wizard submit
+         * Second step of client registration wizard submit
          */
         if (clientAddSecondMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
             // TODO: 26.11.2015 add redirect to the first step if session doesn't contain client
@@ -151,6 +181,9 @@ public class ClientManagementServlet extends HttpServlet {
 
         }
 
+        /**
+         * Third step of client registration wizard submit
+         */
         if (clientAddThirdMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
             HttpSession session = req.getSession();
             Contract newContract = (Contract) session.getAttribute("newContract");
@@ -163,8 +196,12 @@ public class ClientManagementServlet extends HttpServlet {
             newContract.setClient(newClient);
             newContract = contactService.upsertContract(newContract);
 
-            // TODO: 26.11.2015 redirect to the /clients
-            resp.sendRedirect("/tariffs");
+            List<Contract> newClientContracts = newClient.getContracts();
+
+            newClientContracts.add(newContract);
+            newClient.setContracts(newClientContracts);
+
+            resp.sendRedirect("/clients");
         }
     }
 }

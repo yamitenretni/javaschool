@@ -12,8 +12,12 @@
     <form action="/clients/add/step2" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="contractNumber">Phone number</label>
-            <input type="text" class="form-control" id="contractNumber" name="contractNumber"
-                   placeholder="Phone number">
+
+            <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">+</span>
+                <input type="text" class="form-control" id="contractNumber" name="contractNumber"
+                       placeholder="Phone number">
+            </div>
         </div>
         <div class="form-group">
             <label for="contractTariff">Tariff</label>
@@ -31,7 +35,7 @@
 
     </form>
 </div>
-<script src="http://code.jquery.com/jquery-latest.js" ></script>
-<script src="/js/contract.js" ></script>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="/js/contract.js"></script>
 </body>
 </html>

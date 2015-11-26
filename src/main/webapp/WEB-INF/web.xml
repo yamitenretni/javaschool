@@ -39,5 +39,9 @@
         <servlet-name>ClientManagementServlet</servlet-name>
         <url-pattern>/clients/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ClientManagementServlet</servlet-name>
+        <url-pattern>/contracts/*</url-pattern>
+    </servlet-mapping>
 
 </web-app>
