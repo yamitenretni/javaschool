@@ -47,8 +47,7 @@ public class CartForm {
      */
     public final List<CartContractForm> getCartContractForms() {
         Iterator it = cartContractForms.iterator();
-        while (it.hasNext())
-        {
+        while (it.hasNext()) {
             CartContractForm position = (CartContractForm) it.next();
             if (position.getNewTariff() == null && position.getDeactivatedOptions().isEmpty() && position.getNewOptions().isEmpty()) {
                 it.remove();
@@ -56,6 +55,15 @@ public class CartForm {
         }
 
         return cartContractForms;
+    }
+
+    /**
+     * Remove given position from cart.
+     *
+     * @param cartContractForm removing position
+     */
+    public final void deleteCartContractForm(CartContractForm cartContractForm) {
+        cartContractForms.remove(cartContractForm);
     }
 
     /**

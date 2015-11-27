@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +47,10 @@ public class CartServlet extends HttpServlet {
      * URL regexp for cancel editing tariff.
      */
     private static final Pattern CANCEL_EDIT_TARIFF = Pattern.compile("^/cart/(\\d+)/newtariff/cancel$");
+    /**
+     * URL regexp for saving changes.
+     */
+    private static final Pattern SAVE_CHANGES = Pattern.compile("^/cart/save/(\\d+)$");
 
     /**
      * Get service for tariffs.
@@ -99,6 +104,7 @@ public class CartServlet extends HttpServlet {
         Matcher addOptionMatcher = ADD_OPTION.matcher(actionPath);
         Matcher cancelAddOptionMatcher = CANCEL_ADD_OPTION.matcher(actionPath);
         Matcher cancelEditTariff = CANCEL_EDIT_TARIFF.matcher(actionPath);
+        Matcher saveChanges = SAVE_CHANGES.matcher(actionPath);
 
         /**
          * Deactivate contract option.
@@ -200,6 +206,40 @@ public class CartServlet extends HttpServlet {
             cartContractForm.deleteNewTariff();
 
             session.setAttribute("cartForm", cartForm);
+
+            resp.sendRedirect(refPath);
+        }
+
+        /**
+         * Save changes of contract.
+         */
+        if (saveChanges.matches()) {
+            long contractId = Long.parseLong(saveChanges.group(1));
+            Contract contract = CONTRACT_SVC.getById(contractId);
+
+            HttpSession session = req.getSession();
+            CartForm cartForm = getSessionCartForm(session);
+            CartContractForm cartContractForm = cartForm.getCartContractForm(contract);
+
+            List<ContractOption> deactivatedOptions = cartContractForm.getDeactivatedOptions();
+            List<ContractOption> newOptions = cartContractForm.getNewOptions();
+            ContractTariff newTariff = cartContractForm.getNewTariff();
+
+            if (!deactivatedOptions.isEmpty()) {
+                contract.getActivatedOptions().removeAll(deactivatedOptions);
+            }
+
+            if (newTariff != null) {
+                contract.setTariff(newTariff);
+            }
+
+            if (!newOptions.isEmpty()) {
+                contract.getActivatedOptions().addAll(newOptions);
+            }
+
+            CONTRACT_SVC.upsertContract(contract);
+
+            cartForm.deleteCartContractForm(cartContractForm);
 
             resp.sendRedirect(refPath);
         }
