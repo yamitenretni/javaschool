@@ -7,9 +7,11 @@ import domain.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.TypedQuery;
 import java.util.List;
 
+/**
+ * Implements main methods for working with users in database.
+ */
 public class UserService {
 
     private EntityManager entityManager = TransactionManager.getInstance().getEntityManager();
@@ -41,12 +43,12 @@ public class UserService {
     }
 
     public boolean checkUser(String login, String password) {
-        TypedQuery<User> namedQuery = entityManager
-                .createNamedQuery("User.checkUser", User.class)
+        List<User> resultList = entityManager
+                .createNamedQuery(User.CHECK, User.class)
                 .setParameter("login", login)
-                .setParameter("password", password);
+                .setParameter("password", User.getMd5(password)).getResultList();
 
-        if (!namedQuery.getResultList().isEmpty()) {
+        if (!resultList.isEmpty()) {
             return true;
         }
         return false;

@@ -31,7 +31,7 @@
                 <td>${option.name}</td>
                 <td>${option.connectionCost}</td>
                 <td>${option.monthlyCost}</td>
-                <td><a href="/contracts/${contract.id}/deactivate/${option.id}" class="btn">Deactivate</a></td>
+                <td><a href="/cart/${contract.id}/deactivate/${option.id}" class="btn">Deactivate</a></td>
             </tr>
         </c:forEach>
         </tbody>

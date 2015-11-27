@@ -18,7 +18,7 @@
                 <td>${option.name}</td>
                 <td>${option.connectionCost}</td>
                 <td>${option.monthlyCost}</td>
-                <td><a href="/contracts/${cartPosition.contract.id}/deactivate/${option.id}/cancel">Cancel</a></td>
+                <td><a href="/cart/${cartPosition.contract.id}/deactivate/${option.id}/cancel">Cancel</a></td>
             </tr>
         </c:forEach>
         </tbody>

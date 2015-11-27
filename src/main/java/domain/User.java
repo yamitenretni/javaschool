@@ -8,13 +8,21 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
 
-// TODO: 15.11.2015 set const CHECK_USER = "User.checkUser"
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
+import static domain.User.CHECK;
+
+/**
+ * User of application.
+ */
 @Entity
 @Table(name = "users")
-@NamedQuery(name = "User.checkUser",
+@NamedQuery(name = CHECK,
             query = "select u from User u where u.login = :login and u.password = :password")
 public class User {
+    public static final String CHECK = "User.checkUser";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,7 +39,20 @@ public class User {
 
     public User(final String newLogin, final String newPassword) {
         login = newLogin;
-        password = newPassword;
+        password = getMd5(newPassword);
+    }
+
+    public static String getMd5(final String s) {
+        MessageDigest md = null;
+
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            // TODO: 27.11.2015 log it
+        }
+        byte[] digest = md.digest(s.getBytes());
+        BigInteger bigInt = new BigInteger(1, digest);
+        return bigInt.toString(16);
     }
 
     public long getId() {
@@ -51,7 +72,7 @@ public class User {
     }
 
     public void setPassword(final String newPassword) {
-        password = newPassword;
+        password = getMd5(newPassword);
     }
 
     @Override

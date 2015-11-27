@@ -5,8 +5,6 @@ import domain.Contract;
 import domain.ContractOption;
 import domain.ContractTariff;
 import domain.User;
-import form.CartContractForm;
-import form.CartForm;
 import service.ClientService;
 import service.ContractOptionService;
 import service.ContractService;
@@ -29,6 +27,9 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Servlet for working with clients and contracts information.
+ */
 public class ClientManagementServlet extends HttpServlet {
     /**
      * Get service for clients.
@@ -78,16 +79,6 @@ public class ClientManagementServlet extends HttpServlet {
     private final Pattern contractPagePattern = Pattern.compile("^/contracts/(\\d+)$");
 
     /**
-     * URL regexp for deactivating contract option.
-     */
-    private final Pattern deactivateOptionPattern = Pattern.compile("^/contracts/(\\d+)/deactivate/(\\d+)$");
-
-    /**
-     * URL regexp for cancel deactivation of option from cart.
-     */
-    private final Pattern cancelDeactivateOptionPattern = Pattern.compile("^/contracts/(\\d+)/deactivate/(\\d+)/cancel$");
-
-    /**
      * Date format for parsing date.
      */
     private final DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
@@ -105,9 +96,6 @@ public class ClientManagementServlet extends HttpServlet {
         Matcher clientPageMatcher = clientPagePattern.matcher(actionPath);
 
         Matcher contractPageMatcher = contractPagePattern.matcher(actionPath);
-
-        Matcher deactivateOptionMatcher = deactivateOptionPattern.matcher(actionPath);
-        Matcher cancelDeactivateOptionMatcher = cancelDeactivateOptionPattern.matcher(actionPath);
 
         /**
          * Get client list.
@@ -155,52 +143,6 @@ public class ClientManagementServlet extends HttpServlet {
             req.getRequestDispatcher("/jsp/read-contract.jsp").forward(req, resp);
         }
 
-        /**
-         * Deactivate contract option.
-         */
-        if (deactivateOptionMatcher.matches()) {
-            CartForm cartForm;
-            CartContractForm cartContractForm;
-
-            long contractId = Long.parseLong(deactivateOptionMatcher.group(1));
-            long optionId = Long.parseLong(deactivateOptionMatcher.group(2));
-            Contract contract = contactSvc.getById(contractId);
-            ContractOption option = optionSvc.getById(optionId);
-
-            HttpSession session = req.getSession();
-            if (session.getAttribute("cartForm") != null) {
-                cartForm = (CartForm) session.getAttribute("cartForm");
-
-            } else {
-                cartForm = new CartForm();
-            }
-
-            cartContractForm = cartForm.getCartContractForm(contract);
-            cartContractForm.addDeactivatedOption(option);
-
-            session.setAttribute("cartForm", cartForm);
-
-            resp.sendRedirect("/contracts/" + contractId);
-        }
-
-        /**
-         * Delete deactivated option from the cart.
-         */
-        if (cancelDeactivateOptionMatcher.matches()) {
-            long contractId = Long.parseLong(cancelDeactivateOptionMatcher.group(1));
-            long optionId = Long.parseLong(cancelDeactivateOptionMatcher.group(2));
-            Contract contract = contactSvc.getById(contractId);
-            ContractOption option = optionSvc.getById(optionId);
-
-            HttpSession session = req.getSession();
-            CartForm cartForm = (CartForm) session.getAttribute("cartForm");
-
-            CartContractForm cartContractForm = cartForm.getCartContractForm(contract);
-            cartContractForm.deleteDeactivatedOption(option);
-
-            resp.sendRedirect(refPath);
-        }
-
     }
 
     // TODO: 26.11.2015 'Cancel' and 'Previous step' buttons
@@ -222,7 +164,7 @@ public class ClientManagementServlet extends HttpServlet {
             try {
                 birthDate = format.parse(req.getParameter("birthDate"));
             } catch (ParseException e) {
-                e.printStackTrace();
+                // TODO: 26.11.2015 Log it
             }
 
             Client newClient = new Client(newClientUser,

@@ -22,6 +22,10 @@
         <servlet-name>ClientManagementServlet</servlet-name>
         <servlet-class>servlets.ClientManagementServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>CartServlet</servlet-name>
+        <servlet-class>servlets.CartServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>MyTestServlet</servlet-name>
@@ -42,6 +46,10 @@
     <servlet-mapping>
         <servlet-name>ClientManagementServlet</servlet-name>
         <url-pattern>/contracts/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CartServlet</servlet-name>
+        <url-pattern>/cart/*</url-pattern>
     </servlet-mapping>
 
 </web-app>
