@@ -12,7 +12,7 @@
 <div class="page center-block">
     <div class="page__alert alert" role="alert"></div>
 
-    <form class="page__login" action="/s" method="post" accept-charset="utf-8">
+    <form class="page__login" action="/hello" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="login">Login</label>
             <input type="text" class="form-control" id="login" name="login" placeholder="Login">
