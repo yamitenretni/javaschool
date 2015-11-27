@@ -2,10 +2,12 @@ package servlets;
 
 import domain.Contract;
 import domain.ContractOption;
+import domain.ContractTariff;
 import form.CartContractForm;
 import form.CartForm;
 import service.ContractOptionService;
 import service.ContractService;
+import service.ContractTariffService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -36,7 +38,14 @@ public class CartServlet extends HttpServlet {
      * URL regexp for cancel adding contract option.
      */
     private static final Pattern CANCEL_ADD_OPTION = Pattern.compile("^/cart/(\\d+)/add/(\\d+)/cancel$");
-
+    /**
+     * URL regexp for edit contract tariff.
+     */
+    private static final Pattern EDIT_TARIFF = Pattern.compile("^/cart/(\\d+)/newtariff$");
+    /**
+     * URL regexp for cancel editing tariff.
+     */
+    private static final Pattern CANCEL_EDIT_TARIFF = Pattern.compile("^/cart/(\\d+)/newtariff/cancel$");
 
     /**
      * Get service for tariffs.
@@ -47,6 +56,39 @@ public class CartServlet extends HttpServlet {
      */
     private static final ContractOptionService OPTION_SVC = new ContractOptionService();
 
+    /**
+     * Get service for tariffs.
+     */
+    private static final ContractTariffService TARIFF_SVC = new ContractTariffService();
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        final String actionPath = req.getRequestURI();
+        final String refPath = req.getHeader("referer");
+
+        Matcher editTariffMatcher = EDIT_TARIFF.matcher(actionPath);
+
+        if (editTariffMatcher.matches()) {
+            CartForm cartForm;
+            CartContractForm cartContractForm;
+
+            long contractId = Long.parseLong(editTariffMatcher.group(1));
+            long tariffId = Long.parseLong(req.getParameter("newTariff"));
+            Contract contract = CONTRACT_SVC.getById(contractId);
+            ContractTariff tariff = TARIFF_SVC.getById(tariffId);
+
+            HttpSession session = req.getSession();
+            cartForm = getSessionCartForm(session);
+            cartContractForm = cartForm.getCartContractForm(contract);
+
+            cartContractForm.changeTariff(tariff);
+            session.setAttribute("cartForm", cartForm);
+
+            resp.sendRedirect(refPath);
+        }
+
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String actionPath = req.getRequestURI();
@@ -56,6 +98,7 @@ public class CartServlet extends HttpServlet {
         Matcher cancelDeactivateOptionMatcher = CANCEL_DEACTIVATE_OPTION.matcher(actionPath);
         Matcher addOptionMatcher = ADD_OPTION.matcher(actionPath);
         Matcher cancelAddOptionMatcher = CANCEL_ADD_OPTION.matcher(actionPath);
+        Matcher cancelEditTariff = CANCEL_EDIT_TARIFF.matcher(actionPath);
 
         /**
          * Deactivate contract option.
@@ -137,6 +180,24 @@ public class CartServlet extends HttpServlet {
 
             CartContractForm cartContractForm = cartForm.getCartContractForm(contract);
             cartContractForm.deleteAddedOption(option);
+
+            session.setAttribute("cartForm", cartForm);
+
+            resp.sendRedirect(refPath);
+        }
+
+        /**
+         * Cancel tariff edit.
+         */
+        if (cancelEditTariff.matches()) {
+            long contractId = Long.parseLong(cancelEditTariff.group(1));
+            Contract contract = CONTRACT_SVC.getById(contractId);
+
+            HttpSession session = req.getSession();
+            CartForm cartForm = getSessionCartForm(session);
+
+            CartContractForm cartContractForm = cartForm.getCartContractForm(contract);
+            cartContractForm.deleteNewTariff();
 
             session.setAttribute("cartForm", cartForm);
 

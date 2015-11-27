@@ -4,9 +4,9 @@
     <c:forEach items="${cartForm.cartContractForms}" var="cartPosition">
         <h3>For the number +${cartPosition.contract.number}</h3>
 
-        <c:if test="${cartPosition.newTariff = null}">
+        <c:if test="${cartPosition.newTariff != null}">
             <div class="panel panel-info">
-                <div class="panel-heading">Tariff will change on ${cartPosition.newTariff}</div>
+                <div class="panel-heading">Tariff will change on ${cartPosition.newTariff.name} <a href="/cart/${contract.id}/newtariff/cancel">Cancel</a></div>
             </div>
         </c:if>
         <c:if test="${not empty cartPosition.newOptions}">

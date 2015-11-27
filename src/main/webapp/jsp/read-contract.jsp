@@ -13,6 +13,20 @@
 
     <p><label>Tariff:</label> ${contract.tariff.name}</p>
 
+    <form action="/cart/${contract.id}/newtariff" method="post" accept-charset="utf-8">
+        <div class="form-group">
+            <label for="newTariff">You can change tariff</label>
+            <select name="newTariff" id="newTariff" class="form-control">
+                <option>-- Select new tariff --</option>
+                <c:forEach items="${tariffs}" var="tariff">
+                    <option value="${tariff.id}">${tariff.name}: ${tariff.monthlyCost}</option>
+                </c:forEach>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary" name="requestType" value="submit">Change it</button>
+
+    </form>
+
     <p><label>Owner:</label> ${contract.client.firstName} ${contract.client.lastName}</p>
 
     <c:if test="${not empty contract.activatedOptions}">

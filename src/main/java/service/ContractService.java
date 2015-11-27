@@ -10,6 +10,7 @@ import domain.ContractTariff;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -91,7 +92,8 @@ public class ContractService {
      * @return list of options
      */
     public final List<ContractOption> getAvailableOptions(final Contract contract) {
-        List<ContractOption> options = contract.getTariff().getAvailableOptions();
+        List<ContractOption> options = new ArrayList<>();
+        options.addAll(contract.getTariff().getAvailableOptions());
         options.removeAll(contract.getActivatedOptions());
         return options;
     }

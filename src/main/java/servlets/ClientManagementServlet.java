@@ -143,6 +143,7 @@ public class ClientManagementServlet extends HttpServlet {
 
             req.setAttribute("contract", contract);
             req.setAttribute("availableOptions", availableOptions);
+            req.setAttribute("tariffs", tariffSvc.getActiveTariffs());
             req.getRequestDispatcher("/jsp/read-contract.jsp").forward(req, resp);
         }
 

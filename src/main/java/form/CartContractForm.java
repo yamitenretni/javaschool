@@ -41,6 +41,7 @@ public class CartContractForm {
 
     /**
      * Constructor with contract.
+     *
      * @param newContract changing contract
      */
     public CartContractForm(final Contract newContract) {
@@ -50,7 +51,8 @@ public class CartContractForm {
     }
 
     /**
-     * Add deactivated option to the cart if it's not there
+     * Add deactivated option to the cart if it's not there.
+     *
      * @param option new option
      */
     public final void addDeactivatedOption(final ContractOption option) {
@@ -60,7 +62,8 @@ public class CartContractForm {
     }
 
     /**
-     * Delete deactivated option from the cart
+     * Delete deactivated option from the cart.
+     *
      * @param option deleting option
      */
     public final void deleteDeactivatedOption(final ContractOption option) {
@@ -70,7 +73,8 @@ public class CartContractForm {
     }
 
     /**
-     * Add new option to the cart if it's not there
+     * Add new option to the cart if it's not there.
+     *
      * @param option new option
      */
     public final void addNewOption(final ContractOption option) {
@@ -80,7 +84,8 @@ public class CartContractForm {
     }
 
     /**
-     * Delete deactivated option from the cart
+     * Delete deactivated option from the cart.
+     *
      * @param option deleting option
      */
     public final void deleteAddedOption(final ContractOption option) {
@@ -89,18 +94,36 @@ public class CartContractForm {
         }
     }
 
+    /**
+     * Change contract tariff and deactivate all active options.
+     *
+     * @param tariff new tariff for the contract
+     */
     public final void changeTariff(final ContractTariff tariff) {
         newTariff = tariff;
 
-        //deactivate options
-        List<ContractOption> activeOptions = contract.getActivatedOptions();
-        List<ContractOption> deactivatingOptions = tariff.getAvailableOptions();
+//        //deactivate unsupported options. works but need more logic
+//        List<ContractOption> unsupportedOptions = new ArrayList<>();
+//        unsupportedOptions.addAll(contract.getActivatedOptions());
+//        unsupportedOptions.removeAll(tariff.getAvailableOptions());
+//
+//        for (ContractOption option : unsupportedOptions) {
+//            addDeactivatedOption(option);
+//        }
 
-        deactivatingOptions.removeAll(activeOptions);
-
-        for (ContractOption option : deactivatingOptions) {
+        /**
+         * Simple logic: all activated options will be deactivated if tariff changes
+         */
+        for (ContractOption option : contract.getActivatedOptions()) {
             addDeactivatedOption(option);
         }
+    }
+
+    /**
+     * Set null into newTariff field.
+     */
+    public final void deleteNewTariff() {
+        newTariff = null;
     }
 
     /**
@@ -113,6 +136,7 @@ public class CartContractForm {
 
     /**
      * Contract setter.
+     *
      * @param changingContract contract that will be changed after submit
      */
     public final void setContract(final Contract changingContract) {
@@ -121,6 +145,7 @@ public class CartContractForm {
 
     /**
      * Tariff getter.
+     *
      * @return new tariff of contract
      */
     public final ContractTariff getNewTariff() {
@@ -129,6 +154,7 @@ public class CartContractForm {
 
     /**
      * Tariff setter.
+     *
      * @param tariff new tariff of contract
      */
     public final void setNewTariff(final ContractTariff tariff) {
@@ -137,6 +163,7 @@ public class CartContractForm {
 
     /**
      * Deactivated options getter.
+     *
      * @return list of options that will be deactivated after submit
      */
     public final List<ContractOption> getDeactivatedOptions() {
@@ -145,6 +172,7 @@ public class CartContractForm {
 
     /**
      * Deactivated options setter.
+     *
      * @param options list of options that will be deactivated after submit
      */
     public final void setDeactivatedOptions(final List<ContractOption> options) {
@@ -153,6 +181,7 @@ public class CartContractForm {
 
     /**
      * New options getter.
+     *
      * @return list of options that will be added after submit
      */
     public final List<ContractOption> getNewOptions() {
@@ -161,6 +190,7 @@ public class CartContractForm {
 
     /**
      * New options setter.
+     *
      * @param options list of options that will be added after submit
      */
     public final void setNewOptions(final List<ContractOption> options) {
