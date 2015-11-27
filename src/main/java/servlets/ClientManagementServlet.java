@@ -42,7 +42,7 @@ public class ClientManagementServlet extends HttpServlet {
     /**
      * Get service for contracts.
      */
-    private final ContractService contactSvc = new ContractService();
+    private final ContractService contractSvc = new ContractService();
     /**
      * Get service for tariffs.
      */
@@ -138,8 +138,11 @@ public class ClientManagementServlet extends HttpServlet {
          */
         if (contractPageMatcher.matches()) {
             long contractId = Long.parseLong(contractPageMatcher.group(1));
+            Contract contract = contractSvc.getById(contractId);
+            List<ContractOption> availableOptions = contractSvc.getAvailableOptions(contract);
 
-            req.setAttribute("contract", contactSvc.getById(contractId));
+            req.setAttribute("contract", contract);
+            req.setAttribute("availableOptions", availableOptions);
             req.getRequestDispatcher("/jsp/read-contract.jsp").forward(req, resp);
         }
 
@@ -216,7 +219,7 @@ public class ClientManagementServlet extends HttpServlet {
 
             newClient = clientSvc.upsertClient(newClient);
             newContract.setClient(newClient);
-            newContract = contactSvc.upsertContract(newContract);
+            newContract = contractSvc.upsertContract(newContract);
 
             List<Contract> newClientContracts = newClient.getContracts();
 

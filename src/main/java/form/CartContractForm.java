@@ -70,6 +70,40 @@ public class CartContractForm {
     }
 
     /**
+     * Add new option to the cart if it's not there
+     * @param option new option
+     */
+    public final void addNewOption(final ContractOption option) {
+        if (!newOptions.contains(option)) {
+            newOptions.add(option);
+        }
+    }
+
+    /**
+     * Delete deactivated option from the cart
+     * @param option deleting option
+     */
+    public final void deleteAddedOption(final ContractOption option) {
+        if (newOptions.contains(option)) {
+            newOptions.remove(option);
+        }
+    }
+
+    public final void changeTariff(final ContractTariff tariff) {
+        newTariff = tariff;
+
+        //deactivate options
+        List<ContractOption> activeOptions = contract.getActivatedOptions();
+        List<ContractOption> deactivatingOptions = tariff.getAvailableOptions();
+
+        deactivatingOptions.removeAll(activeOptions);
+
+        for (ContractOption option : deactivatingOptions) {
+            addDeactivatedOption(option);
+        }
+    }
+
+    /**
      * Contract getter.
      * @return contract of CartContractForm
      */

@@ -28,6 +28,15 @@ public class CartServlet extends HttpServlet {
      * URL regexp for cancel deactivation of option from cart.
      */
     private static final Pattern CANCEL_DEACTIVATE_OPTION = Pattern.compile("^/cart/(\\d+)/deactivate/(\\d+)/cancel$");
+    /**
+     * URL regexp for adding contract option.
+     */
+    private static final Pattern ADD_OPTION = Pattern.compile("^/cart/(\\d+)/add/(\\d+)$");
+    /**
+     * URL regexp for cancel adding contract option.
+     */
+    private static final Pattern CANCEL_ADD_OPTION = Pattern.compile("^/cart/(\\d+)/add/(\\d+)/cancel$");
+
 
     /**
      * Get service for tariffs.
@@ -45,6 +54,8 @@ public class CartServlet extends HttpServlet {
 
         Matcher deactivateOptionMatcher = DEACTIVATE_OPTION.matcher(actionPath);
         Matcher cancelDeactivateOptionMatcher = CANCEL_DEACTIVATE_OPTION.matcher(actionPath);
+        Matcher addOptionMatcher = ADD_OPTION.matcher(actionPath);
+        Matcher cancelAddOptionMatcher = CANCEL_ADD_OPTION.matcher(actionPath);
 
         /**
          * Deactivate contract option.
@@ -59,12 +70,7 @@ public class CartServlet extends HttpServlet {
             ContractOption option = OPTION_SVC.getById(optionId);
 
             HttpSession session = req.getSession();
-            if (session.getAttribute("cartForm") != null) {
-                cartForm = (CartForm) session.getAttribute("cartForm");
-
-            } else {
-                cartForm = new CartForm();
-            }
+            cartForm = getSessionCartForm(session);
 
             cartContractForm = cartForm.getCartContractForm(contract);
             cartContractForm.addDeactivatedOption(option);
@@ -72,6 +78,29 @@ public class CartServlet extends HttpServlet {
             session.setAttribute("cartForm", cartForm);
 
             resp.sendRedirect("/contracts/" + contractId);
+        }
+
+        /**
+         * Add contract option.
+         */
+        if (addOptionMatcher.matches()) {
+            CartForm cartForm;
+            CartContractForm cartContractForm;
+
+            long contractId = Long.parseLong(addOptionMatcher.group(1));
+            long optionId = Long.parseLong(addOptionMatcher.group(2));
+            Contract contract = CONTRACT_SVC.getById(contractId);
+            ContractOption option = OPTION_SVC.getById(optionId);
+
+            HttpSession session = req.getSession();
+            cartForm = getSessionCartForm(session);
+
+            cartContractForm = cartForm.getCartContractForm(contract);
+            cartContractForm.addNewOption(option);
+
+            session.setAttribute("cartForm", cartForm);
+
+            resp.sendRedirect(refPath);
         }
 
         /**
@@ -84,12 +113,50 @@ public class CartServlet extends HttpServlet {
             ContractOption option = OPTION_SVC.getById(optionId);
 
             HttpSession session = req.getSession();
-            CartForm cartForm = (CartForm) session.getAttribute("cartForm");
+            CartForm cartForm = getSessionCartForm(session);
 
             CartContractForm cartContractForm = cartForm.getCartContractForm(contract);
             cartContractForm.deleteDeactivatedOption(option);
 
+            session.setAttribute("cartForm", cartForm);
+
             resp.sendRedirect(refPath);
+        }
+
+        /**
+         * Delete added option from the cart.
+         */
+        if (cancelAddOptionMatcher.matches()) {
+            long contractId = Long.parseLong(cancelAddOptionMatcher.group(1));
+            long optionId = Long.parseLong(cancelAddOptionMatcher.group(2));
+            Contract contract = CONTRACT_SVC.getById(contractId);
+            ContractOption option = OPTION_SVC.getById(optionId);
+
+            HttpSession session = req.getSession();
+            CartForm cartForm = getSessionCartForm(session);
+
+            CartContractForm cartContractForm = cartForm.getCartContractForm(contract);
+            cartContractForm.deleteAddedOption(option);
+
+            session.setAttribute("cartForm", cartForm);
+
+            resp.sendRedirect(refPath);
+        }
+
+    }
+
+    /**
+     * Get CartForm object from given session or new CartForm
+     *
+     * @param session current session
+     * @return current or new CartForm
+     */
+    private CartForm getSessionCartForm(final HttpSession session) {
+        if (session.getAttribute("cartForm") != null) {
+            return (CartForm) session.getAttribute("cartForm");
+
+        } else {
+            return new CartForm();
         }
     }
 }

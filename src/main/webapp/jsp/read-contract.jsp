@@ -9,33 +9,59 @@
 </head>
 <body>
 <div class="page">
-    <p><label>Phone number:</label> ${contract.number}</p>
+    <p><label>Phone number:</label> +${contract.number}</p>
 
     <p><label>Tariff:</label> ${contract.tariff.name}</p>
 
     <p><label>Owner:</label> ${contract.client.firstName} ${contract.client.lastName}</p>
 
-    <table class="table">
-        <caption>Activated options:</caption>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Connection cost</th>
-            <th>Monthly cost</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <c:forEach items="${contract.activatedOptions}" var="option">
+    <c:if test="${not empty contract.activatedOptions}">
+        <table class="table">
+            <caption>Activated options:</caption>
+            <thead>
             <tr>
-                <td>${option.name}</td>
-                <td>${option.connectionCost}</td>
-                <td>${option.monthlyCost}</td>
-                <td><a href="/cart/${contract.id}/deactivate/${option.id}" class="btn">Deactivate</a></td>
+                <th>Name</th>
+                <th>Connection cost</th>
+                <th>Monthly cost</th>
+                <th></th>
             </tr>
-        </c:forEach>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            <c:forEach items="${contract.activatedOptions}" var="option">
+                <tr>
+                    <td>${option.name}</td>
+                    <td>${option.connectionCost}</td>
+                    <td>${option.monthlyCost}</td>
+                    <td><a href="/cart/${contract.id}/deactivate/${option.id}" class="btn">Deactivate</a></td>
+                </tr>
+            </c:forEach>
+            </tbody>
+        </table>
+    </c:if>
+
+    <c:if test="${not empty availableOptions}">
+        <table class="table">
+            <caption>You can also activate this options:</caption>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Connection cost</th>
+                <th>Monthly cost</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <c:forEach items="${availableOptions}" var="option">
+                <tr>
+                    <td>${option.name}</td>
+                    <td>${option.connectionCost}</td>
+                    <td>${option.monthlyCost}</td>
+                    <td><a href="/cart/${contract.id}/add/${option.id}" class="btn">Activate</a></td>
+                </tr>
+            </c:forEach>
+            </tbody>
+        </table>
+    </c:if>
     <%@include file="/jsp/cart-block.jsp" %>
 </div>
 </body>

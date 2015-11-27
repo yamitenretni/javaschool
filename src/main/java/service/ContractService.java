@@ -42,6 +42,7 @@ public class ContractService {
 
     /**
      * Add or update contract in database
+     *
      * @param contract contract object
      * @return created or updated contract
      */
@@ -52,6 +53,7 @@ public class ContractService {
 
         return updatedContract;
     }
+
     /**
      * Add or update contract in database
      *
@@ -80,5 +82,17 @@ public class ContractService {
         transaction.commit();
 
         return updatedContract;
+    }
+
+    /**
+     * Get list of the options which could be added to the contract
+     *
+     * @param contract given contract
+     * @return list of options
+     */
+    public final List<ContractOption> getAvailableOptions(final Contract contract) {
+        List<ContractOption> options = contract.getTariff().getAvailableOptions();
+        options.removeAll(contract.getActivatedOptions());
+        return options;
     }
 }

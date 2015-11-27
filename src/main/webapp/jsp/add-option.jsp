@@ -26,7 +26,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Add option</button>
-        <a href="/tariffs" class="btn">Back to tariffs</a>
+        <a href="/options" class="btn">Back to options</a>
 
     </form>
 </div>

@@ -3,6 +3,7 @@ package form;
 import domain.Contract;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -40,11 +41,20 @@ public class CartForm {
     }
 
     /**
-     * Getter for list of changing contracts.
+     * Getter for list of changing contracts. Removes empty position before returning.
      *
      * @return list of contracts with changes
      */
     public final List<CartContractForm> getCartContractForms() {
+        Iterator it = cartContractForms.iterator();
+        while (it.hasNext())
+        {
+            CartContractForm position = (CartContractForm) it.next();
+            if (position.getNewTariff() == null && position.getDeactivatedOptions().isEmpty() && position.getNewOptions().isEmpty()) {
+                it.remove();
+            }
+        }
+
         return cartContractForms;
     }
 
