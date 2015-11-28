@@ -1,10 +1,6 @@
 package servlets;
 
-import domain.Client;
-import domain.Contract;
-import domain.ContractOption;
-import domain.ContractTariff;
-import domain.User;
+import domain.*;
 import service.ClientService;
 import service.ContractOptionService;
 import service.ContractService;
@@ -186,7 +182,7 @@ public class ClientManagementServlet extends HttpServlet {
             }
 
             if (validErrs.isEmpty()) {
-                User newClientUser = new User(email, password);
+                User newClientUser = new User(email, password, Role.CLIENT);
 
                 Client newClient = new Client(newClientUser,
                         new ArrayList<Contract>(),

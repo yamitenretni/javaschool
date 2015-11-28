@@ -5,6 +5,7 @@ import javax.persistence.*;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import static domain.User.CHECK;
 
@@ -33,12 +34,17 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "role")
+    private Role role;
+
+
     public User() {
     }
 
-    public User(final String newLogin, final String newPassword) {
+    public User(final String newLogin, final String newPassword, final Role newRole) {
         login = newLogin;
         password = getMd5(newPassword);
+        role = newRole;
     }
 
     public static String getMd5(final String s) {
@@ -72,6 +78,14 @@ public class User {
 
     public void setPassword(final String newPassword) {
         password = getMd5(newPassword);
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(final Role newRole) {
+        role = newRole;
     }
 
     @Override

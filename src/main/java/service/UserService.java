@@ -3,6 +3,7 @@ package service;
 import dao.BaseDAO;
 import dao.BaseDAOImpl;
 import dao.TransactionManager;
+import domain.Role;
 import domain.User;
 
 import javax.persistence.EntityManager;
@@ -27,10 +28,11 @@ public class UserService {
         return updatedUser;
     }
 
-    public void addUser(final String login, final String password) {
+    public void addUser(final String login, final String password, final Role role) {
         User user = new User();
         user.setLogin(login);
         user.setPassword(password);
+        user.setRole(role);
 
         transaction.begin();
         userDao.merge(user);
@@ -60,16 +62,20 @@ public class UserService {
         return users;
     }
 
-    public boolean checkUser(String login, String password) {
+    public User getById(final long userId) {
+        return userDao.getById(User.class, userId);
+    }
+
+    public long checkUser(String login, String password) {
         List<User> resultList = entityManager
                 .createNamedQuery(User.CHECK, User.class)
                 .setParameter("login", login)
                 .setParameter("password", User.getMd5(password)).getResultList();
 
         if (!resultList.isEmpty()) {
-            return true;
+            return resultList.get(0).getId();
         }
-        return false;
+        return 0L;
     }
 
 }

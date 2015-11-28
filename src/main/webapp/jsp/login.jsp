@@ -4,15 +4,17 @@
 <html>
 <head>
     <title></title>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/page.css">
 </head>
 <body>
 <div class="page center-block">
-    <div class="page__alert alert" role="alert"></div>
+    <c:if test="${errors.contains('noSuchUser')}">
+        <div class="alert alert-danger" role="alert">Invalid login/password</div>
+    </c:if>
 
-    <form class="page__login" action="/hello" method="post" accept-charset="utf-8">
+    <form class="page__login" action="/login" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="login">Login</label>
             <input type="text" class="form-control" id="login" name="login" placeholder="Login">
@@ -21,28 +23,27 @@
             <label for="password">Password</label>
             <input type="password" class="form-control" id="password" name="password" placeholder="Password">
         </div>
+        <input type="hidden" name="refpath" value="${refpath}">
         <button type="submit" class="btn btn-primary">Login</button>
     </form>
 
     <table class="page__users table">
         <caption>Users:</caption>
         <thead>
-            <tr>
-                <th>Login</th>
-                <th>Password</th>
-            </tr>
+        <tr>
+            <th>Login</th>
+            <th>Password</th>
+        </tr>
         </thead>
         <tbody>
-            <c:forEach items="${users}" var="user">
-                <tr>
-                    <td>${user.login}</td>
-                    <td>${user.password}</td>
-                </tr>
-            </c:forEach>
+        <c:forEach items="${users}" var="user">
+            <tr>
+                <td>${user.login}</td>
+                <td>${user.password}</td>
+            </tr>
+        </c:forEach>
         </tbody>
     </table>
 </div>
-<script src="http://code.jquery.com/jquery-latest.js" ></script>
-<script src="/js/login-form.js" ></script>
 </body>
 </html>

@@ -16,7 +16,7 @@ public class MyServlet extends HttpServlet {
         resp.setContentType("text/html");
         req.setAttribute("users", userService.getUsers());
 
-        req.getRequestDispatcher("/jsp/index.jsp").forward(req, resp);
+        req.getRequestDispatcher("/jsp/login.jsp").forward(req, resp);
     }
 
     @Override
@@ -26,7 +26,7 @@ public class MyServlet extends HttpServlet {
         String userPassword = req.getParameter("password");
         String loginStatus = "";
 
-        if (userService.checkUser(userLogin, userPassword)) {
+        if (userService.checkUser(userLogin, userPassword) != 0L) {
             loginStatus = "success";
         }
         else {
