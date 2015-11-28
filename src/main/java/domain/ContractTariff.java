@@ -4,10 +4,16 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "tariffs")
-@NamedQuery(name = "ContractTariff.getAllActive",
-        query = "select t from ContractTariff t where t.isDeleted = false")
+@Table(name = "tariffs", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
+@NamedQueries({
+        @NamedQuery(name = "ContractTariff.getAllActive",
+                query = "select t from ContractTariff t where t.isDeleted = false"),
+        @NamedQuery(name = "ContractTariff.hasUniqueName",
+                query = "select t from ContractTariff t where t.name = :name and t.id <> :id")
+})
 public class ContractTariff {
+    public static final String GET_ACTIVE = "ContractTariff.getAllActive";
+    public static final String HAS_UNIQUE_NAME = "ContractTariff.hasUniqueName";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,7 +31,7 @@ public class ContractTariff {
             inverseJoinColumns = {@JoinColumn(name = "option_id")})
     private List<ContractOption> availableOptions;
 
-    @Column (name = "deleted")
+    @Column(name = "deleted")
     private boolean isDeleted = false;
 
     public ContractTariff() {

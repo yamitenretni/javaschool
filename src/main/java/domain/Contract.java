@@ -6,7 +6,10 @@ import java.util.List;
 
 @Entity
 @Table(name = "contracts")
+@NamedQuery(name = "Contract.hasUniqueNumber",
+        query = "select c from Contract c where c.id <> :id and c.number = :number")
 public class Contract {
+    public static final String HAS_UNIQUE_NUMBER = "Contract.hasUniqueNumber";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -16,7 +19,7 @@ public class Contract {
     @JoinColumn(name = "client_id")
     private Client client;
 
-    @Column(name = "number")
+    @Column(name = "number", unique = true)
     private String number;
 
     @ManyToOne

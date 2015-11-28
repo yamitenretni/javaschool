@@ -12,24 +12,37 @@
     <form action="/clients/add/step2" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="contractNumber">Phone number</label>
-
+            <c:if test="${errors.contains('notUniqueNumber')}">
+                <code>must be unique</code>
+            </c:if>
             <div class="input-group">
                 <span class="input-group-addon" id="basic-addon1">+</span>
                 <input type="text" class="form-control" id="contractNumber" name="contractNumber"
-                       placeholder="Phone number">
+                       placeholder="Phone number" value="${number}" required>
             </div>
         </div>
         <div class="form-group">
-            <label for="contractTariff">Tariff</label>
-            <select name="contractTariff" id="contractTariff" class="form-control">
-                <option>-- Select tariff --</option>
+            <label for="contractTariff">Tariff *</label>
+            <select name="contractTariff" id="contractTariff" class="form-control" required>
+                <option value="">-- Select tariff --</option>
                 <c:forEach items="${tariffs}" var="tariff">
-                    <option value="${tariff.id}">${tariff.name}: ${tariff.monthlyCost}</option>
+                    <option value="${tariff.id}"
+                            <c:if test="${tariff.id == selectedTariff.id}">selected</c:if> >${tariff.name}: ${tariff.monthlyCost}</option>
                 </c:forEach>
             </select>
         </div>
 
-        <div id="availableOptions"></div>
+        <div id="availableOptions">
+            <c:forEach items="${selectedTariff.availableOptions}" var="option">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="selectedOptions[]" value="${option.id}"
+                               <c:if test="${savedOptions.contains(option.id)}">checked</c:if>>
+                        <span>${option.name} ${option.connectionCost} once + ${option.monthlyCost} every month</span>
+                    </label>
+                </div>
+            </c:forEach>
+        </div>
 
         <button type="submit" class="btn btn-primary" name="requestType" value="submit">Next step</button>
 

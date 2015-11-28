@@ -23,7 +23,6 @@
             <p><label>Passport data:</label> ${newClient.passportData}</p>
             <p><label>Address:</label> ${newClient.address}</p>
             <p><label>E-mail:</label> ${newClient.user.login}</p>
-            <p><label>Password:</label> ${newClient.user.password}</p>
         </div>
         <div class="panel-heading">
             <h3 class="panel-title">Contract's data</h3>

@@ -51,23 +51,40 @@ public class ContractTariffService {
         ContractTariff tariff;
         if (id != 0L) {
             tariff = getById(id);
-        }
-        else {
+        } else {
             tariff = new ContractTariff();
         }
 
-        tariff.setName(name);
-        tariff.setMonthlyCost(monthlyCost);
-        tariff.setAvailableOptions(availableOptions);
+            tariff.setName(name);
+            tariff.setMonthlyCost(monthlyCost);
+            tariff.setAvailableOptions(availableOptions);
 
-        transaction.begin();
-        tariffDao.merge(tariff);
-        transaction.commit();
+            transaction.begin();
+            tariffDao.merge(tariff);
+            transaction.commit();
+    }
+
+    /**
+     * Check unique name constraint for tariff.
+     *
+     * @param id   id of checking tariff
+     * @param name checking name
+     * @return true if tariff doesn't violate unique constraints
+     */
+    public boolean hasUniqueName(final long id, final String name) {
+        List<ContractTariff> resultList = entityManager
+                .createNamedQuery(ContractTariff.HAS_UNIQUE_NAME, ContractTariff.class)
+                .setParameter("id", id)
+                .setParameter("name", name).getResultList();
+        if (resultList.isEmpty()) {
+            return true;
+        }
+        return false;
     }
 
     public List<ContractTariff> getActiveTariffs() {
         TypedQuery<ContractTariff> namedQuery = entityManager
-                .createNamedQuery("ContractTariff.getAllActive", ContractTariff.class);
+                .createNamedQuery(ContractTariff.GET_ACTIVE, ContractTariff.class);
         List<ContractTariff> tariffs = namedQuery.getResultList();
         return tariffs;
     }

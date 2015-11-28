@@ -12,7 +12,10 @@
     <form action="/options/edit/${editedOption.id}" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="option_name">Option name</label>
-            <input type="text" class="form-control" id="option_name" name="option_name" placeholder="Name" value="${editedOption.name}">
+            <c:if test="${errors.contains('notUniqueName')}" >
+                <code>must be unique</code>
+            </c:if>
+            <input type="text" class="form-control" id="option_name" name="option_name" placeholder="Name" value="${editedOption.name}" required>
         </div>
         <div class="form-group">
             <label for="connection_cost">Connection cost</label>

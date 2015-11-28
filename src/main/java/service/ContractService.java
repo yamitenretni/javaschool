@@ -86,6 +86,24 @@ public class ContractService {
     }
 
     /**
+     * Check unique number constraint for contract.
+     *
+     * @param id     id of checking contract
+     * @param number checking number
+     * @return true if number is unique
+     */
+    public boolean hasUniqueNumber(final long id, final String number) {
+        List<Contract> resultList = entityManager
+                .createNamedQuery(Contract.HAS_UNIQUE_NUMBER, Contract.class)
+                .setParameter("id", id)
+                .setParameter("number", number).getResultList();
+        if (resultList.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Get list of the options which could be added to the contract
      *
      * @param contract given contract

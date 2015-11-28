@@ -81,6 +81,24 @@ public class ContractOptionService {
     }
 
     /**
+     * Check unique name constraint for option.
+     *
+     * @param id   id of checking option
+     * @param name checking name
+     * @return true if option doesn't violate unique constraints
+     */
+    public boolean hasUniqueName(final long id, final String name) {
+        List<ContractOption> resultList = entityManager
+                .createNamedQuery(ContractOption.HAS_UNIQUE_NAME, ContractOption.class)
+                .setParameter("id", id)
+                .setParameter("name", name).getResultList();
+        if (resultList.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Delete option with the specified id
      * @param id option's id
      */
@@ -99,7 +117,7 @@ public class ContractOptionService {
      */
     public final List<ContractOption> getActiveOptions() {
         TypedQuery<ContractOption> namedQuery = entityManager
-                .createNamedQuery("ContractOption.getAllActive", ContractOption.class);
+                .createNamedQuery(ContractOption.GET_ACTIVE, ContractOption.class);
         List<ContractOption> options = namedQuery.getResultList();
 
         return options;

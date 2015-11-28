@@ -4,15 +4,21 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "options")
-@NamedQuery(name = "ContractOption.getAllActive",
-        query = "select o from ContractOption o where o.isDeleted = false")
+@NamedQueries({
+        @NamedQuery(name = "ContractOption.getAllActive",
+                query = "select o from ContractOption o where o.isDeleted = false"),
+        @NamedQuery(name = "ContractOption.hasUniqueName",
+                query = "select o from ContractOption o where o.name = :name and o.id <> :id")
+})
 public class ContractOption {
+    public static final String GET_ACTIVE = "ContractOption.getAllActive";
+    public static final String HAS_UNIQUE_NAME = "ContractOption.hasUniqueName";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String name;
 
     @Column(name = "connection_cost")

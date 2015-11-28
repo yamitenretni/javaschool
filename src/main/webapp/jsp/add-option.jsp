@@ -12,17 +12,20 @@
     <form action="/options/add" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="option_name">Option name</label>
-            <input type="text" class="form-control" id="option_name" name="option_name" placeholder="Name">
+            <c:if test="${errors.contains('notUniqueName')}" >
+                <code>must be unique</code>
+            </c:if>
+            <input type="text" class="form-control" id="option_name" name="option_name" placeholder="Name" value="${name}" required>
         </div>
         <div class="form-group">
             <label for="connection_cost">Connection cost</label>
             <input type="number" min="0" step="0.01" class="form-control" id="connection_cost" name="connection_cost"
-                   placeholder="Connection cost">
+                   placeholder="Connection cost" value="${connectionCost}">
         </div>
         <div class="form-group">
             <label for="monthly_cost">Monthly cost</label>
             <input type="number" min="0" step="0.01" class="form-control" id="monthly_cost" name="monthly_cost"
-                   placeholder="Monthly cost">
+                   placeholder="Monthly cost" value="${monthlyCost}">
         </div>
 
         <button type="submit" class="btn btn-primary">Add option</button>

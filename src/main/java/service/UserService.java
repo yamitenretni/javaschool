@@ -37,6 +37,24 @@ public class UserService {
         transaction.commit();
     }
 
+    /**
+     * Check unique login constraint for user.
+     *
+     * @param id    id of checking user
+     * @param login checking login
+     * @return true if user doesn't violate unique constraints
+     */
+    public boolean hasUniqueLogin(final long id, final String login) {
+        List<User> resultList = entityManager
+                .createNamedQuery(User.HAS_UNIQUE_LOGIN, User.class)
+                .setParameter("id", id)
+                .setParameter("login", login).getResultList();
+        if (resultList.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
     public List<User> getUsers() {
         List<User> users = userDao.getAll(User.class);
         return users;

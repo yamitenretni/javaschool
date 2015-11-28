@@ -1,14 +1,6 @@
 package domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Column;
-import javax.persistence.OneToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.JoinColumn;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +9,10 @@ import java.util.List;
  */
 @Entity
 @Table(name = "clients")
+@NamedQuery(name = "Client.hasUniquePassport",
+        query = "select c from Client c where c.id <> :id and c.passportData = :passport")
 public class Client {
+    public static final String HAS_UNIQUE_PASSPORT = "Client.hasUniquePassport";
 
     /**
      * Automatically generated id of the client.
@@ -60,7 +55,7 @@ public class Client {
     /**
      * Client's passport: all data in one line.
      */
-    @Column(name = "passport_data")
+    @Column(name = "passport_data", unique = true)
     private String passportData;
 
     /**

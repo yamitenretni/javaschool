@@ -17,13 +17,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -163,47 +161,105 @@ public class ClientManagementServlet extends HttpServlet {
          * First step of client registration wizard submit.
          */
         if (clientAddFirstMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
-            User newClientUser = new User(req.getParameter("email"), req.getParameter("password"));
+            List<String> validErrs = new ArrayList<>();
+
+            //Save all parameters
+            String firstName = req.getParameter("firstName");
+            String lastName = req.getParameter("lastName");
             Date birthDate = null;
             try {
                 birthDate = format.parse(req.getParameter("birthDate"));
             } catch (ParseException e) {
                 // TODO: 26.11.2015 Log it
             }
+            String passport = req.getParameter("passport");
+            String address = req.getParameter("address");
+            String email = req.getParameter("email");
+            String password = req.getParameter("password");
 
-            Client newClient = new Client(newClientUser,
-                    new ArrayList<Contract>(),
-                    req.getParameter("firstName"),
-                    req.getParameter("lastName"),
-                    birthDate,
-                    req.getParameter("passport"),
-                    req.getParameter("address"));
-            HttpSession session = req.getSession();
-            session.setAttribute("newClient", newClient);
+            //Validation
+            if (!clientSvc.hasUniquePassport(0L, req.getParameter("passport"))) {
+                validErrs.add("notUniquePassport");
+            }
+            if (!userSvc.hasUniqueLogin(0L, req.getParameter("email"))) {
+                validErrs.add("notUniqueLogin");
+            }
 
-            resp.sendRedirect("/clients/add/step2");
+            if (validErrs.isEmpty()) {
+                User newClientUser = new User(email, password);
+
+                Client newClient = new Client(newClientUser,
+                        new ArrayList<Contract>(),
+                        firstName,
+                        lastName,
+                        birthDate,
+                        passport,
+                        address);
+
+                HttpSession session = req.getSession();
+                session.setAttribute("newClient", newClient);
+
+                resp.sendRedirect("/clients/add/step2");
+            }
+            else {
+                req.setAttribute("errors", validErrs);
+                req.setAttribute("firstName", firstName);
+                req.setAttribute("lastName", lastName);
+                req.setAttribute("birthDate", birthDate);
+                req.setAttribute("passport", passport);
+                req.setAttribute("address", address);
+                req.setAttribute("email", email);
+                doGet(req, resp);
+            }
         }
 
         /**
          * Second step of client registration wizard submit.
          */
         if (clientAddSecondMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
+            List<String> validErrs = new ArrayList<>();
             // TODO: 26.11.2015 add redirect to the first step if session doesn't contain client
-            HttpSession session = req.getSession();
-            Client newClient = (Client) session.getAttribute("newClient");
-            ContractTariff tariff = tariffSvc.getById(Long.parseLong(req.getParameter("contractTariff")));
-            List<ContractOption> activatedOptions = new ArrayList<>();
+
+            //Save all parameters
+            String number = req.getParameter("contractNumber");
+            Long tariffId = Long.parseLong(req.getParameter("contractTariff"));
+            ContractTariff tariff = tariffSvc.getById(tariffId);
             String[] selectedOptions = req.getParameterValues("selectedOptions[]");
-            if (selectedOptions != null) {
-                for (String optionId : selectedOptions) {
-                    activatedOptions.add(optionSvc.getById(Long.parseLong(optionId)));
-                }
+
+            List<Long> savedOptions = new ArrayList<>();
+            for (String optionId : selectedOptions) {
+                savedOptions.add(Long.parseLong(optionId));
             }
 
-            Contract contract = new Contract(newClient, req.getParameter("contractNumber"), tariff, activatedOptions);
-            session.setAttribute("newContract", contract);
 
-            resp.sendRedirect("/clients/add/step3");
+            //Validation
+            if (!contractSvc.hasUniqueNumber(0L, req.getParameter("contractNumber"))) {
+                validErrs.add("notUniqueNumber");
+            }
+
+            if (validErrs.isEmpty()) {
+                HttpSession session = req.getSession();
+
+                Client newClient = (Client) session.getAttribute("newClient");
+                List<ContractOption> activatedOptions = new ArrayList<>();
+                if (selectedOptions != null) {
+                    for (String optionId : selectedOptions) {
+                        activatedOptions.add(optionSvc.getById(Long.parseLong(optionId)));
+                    }
+                }
+
+                Contract contract = new Contract(newClient, req.getParameter("contractNumber"), tariff, activatedOptions);
+                session.setAttribute("newContract", contract);
+
+                resp.sendRedirect("/clients/add/step3");
+            }
+            else {
+                req.setAttribute("errors", validErrs);
+                req.setAttribute("number", number);
+                req.setAttribute("selectedTariff", tariff);
+                req.setAttribute("savedOptions", savedOptions);
+                doGet(req, resp);
+            }
 
         }
 

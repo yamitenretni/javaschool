@@ -33,6 +33,7 @@ public class ClientService {
 
     /**
      * Get client by id from database
+     *
      * @param id client's id
      * @return found client
      */
@@ -42,6 +43,7 @@ public class ClientService {
 
     /**
      * Add or update client
+     *
      * @param client client object
      * @return created or updated client
      */
@@ -52,12 +54,14 @@ public class ClientService {
 
         return updatedClient;
     }
+
     /**
      * Add or update client's common info
-     * @param id client's id in database, if =0L then new client will be inserted in database
-     * @param firstName client's first name
-     * @param lastName client's last name
-     * @param birthDate client's date of birth
+     *
+     * @param id           client's id in database, if =0L then new client will be inserted in database
+     * @param firstName    client's first name
+     * @param lastName     client's last name
+     * @param birthDate    client's date of birth
      * @param passportData client's passport
      * @return created or updated client
      */
@@ -65,8 +69,7 @@ public class ClientService {
         Client client;
         if (id != 0L) {
             client = getById(id);
-        }
-        else {
+        } else {
             client = new Client();
         }
 
@@ -83,9 +86,28 @@ public class ClientService {
     }
 
     /**
+     * Check unique passport constraint for client.
+     *
+     * @param id       id of checking client
+     * @param passport checking passport
+     * @return true if client doesn't violate unique constraints
+     */
+    public boolean hasUniquePassport(final long id, final String passport) {
+        List<Client> resultList = entityManager
+                .createNamedQuery(Client.HAS_UNIQUE_PASSPORT, Client.class)
+                .setParameter("id", id)
+                .setParameter("passport", passport).getResultList();
+        if (resultList.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Add link between client and user in database
+     *
      * @param clientId client's id in database
-     * @param user object contains user's data
+     * @param user     object contains user's data
      */
     public final void addUser(final long clientId, final User user) {
         Client client = getById(clientId);
@@ -98,7 +120,8 @@ public class ClientService {
 
     /**
      * Update contract list of client in database
-     * @param clientId client's id in database
+     *
+     * @param clientId  client's id in database
      * @param contracts list of contracts
      */
     public final void updateContractList(final long clientId, final List<Contract> contracts) {
@@ -112,6 +135,7 @@ public class ClientService {
 
     /**
      * Get all clients from database
+     *
      * @return list of clients
      */
     public final List<Client> getClients() {

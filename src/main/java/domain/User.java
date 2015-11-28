@@ -1,12 +1,6 @@
 package domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Column;
+import javax.persistence.*;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -19,16 +13,21 @@ import static domain.User.CHECK;
  */
 @Entity
 @Table(name = "users")
-@NamedQuery(name = CHECK,
-            query = "select u from User u where u.login = :login and u.password = :password")
+@NamedQueries({
+        @NamedQuery(name = CHECK,
+                query = "select u from User u where u.login = :login and u.password = :password"),
+        @NamedQuery(name = "User.hasUniqueLogin",
+                query = "select u from User u where u.id <> :id and u.login = :login")
+})
 public class User {
     public static final String CHECK = "User.checkUser";
+    public static final String HAS_UNIQUE_LOGIN = "User.hasUniqueLogin";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(name = "login")
+    @Column(name = "login", unique = true)
     private String login;
 
     @Column(name = "password")
