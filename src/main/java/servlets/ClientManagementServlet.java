@@ -95,7 +95,8 @@ public class ClientManagementServlet extends HttpServlet {
          * Get client list.
          */
         if (clientListMatcher.matches()) {
-            req.setAttribute("clients", clientSvc.getClients());
+            List<Client> clients = clientSvc.getClients();
+            req.setAttribute("clients", clients);
             req.getRequestDispatcher("/jsp/clients.jsp").forward(req, resp);
         }
         /**

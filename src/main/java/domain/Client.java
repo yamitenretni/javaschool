@@ -9,10 +9,16 @@ import java.util.List;
  */
 @Entity
 @Table(name = "clients")
-@NamedQuery(name = "Client.hasUniquePassport",
-        query = "select c from Client c where c.id <> :id and c.passportData = :passport")
+@NamedQueries({
+        @NamedQuery(name = Client.HAS_UNIQUE_PASSPORT,
+                query = "select c from Client c where c.id <> :id and c.passportData = :passport"),
+        @NamedQuery(name = Client.GET_BY_USER,
+                query = "select c from Client c where c.user = :user")
+})
+
 public class Client {
     public static final String HAS_UNIQUE_PASSPORT = "Client.hasUniquePassport";
+    public static final String GET_BY_USER = "Client.getByUser";
 
     /**
      * Automatically generated id of the client.

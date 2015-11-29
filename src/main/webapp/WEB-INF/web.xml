@@ -11,16 +11,47 @@
     </description>
 
     <filter>
-        <filter-name>AuthEmployee</filter-name>
-        <filter-class>filter.AuthEmployeeFilter</filter-class>
+        <filter-name>Auth</filter-name>
+        <filter-class>filter.AuthFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>ClientAccess</filter-name>
+        <filter-class>filter.ClientAccessFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>EmployeeAccess</filter-name>
+        <filter-class>filter.EmployeeAccessFilter</filter-class>
     </filter>
 
     <filter-mapping>
-        <filter-name>AuthEmployee</filter-name>
+        <filter-name>Auth</filter-name>
+        <servlet-name>CabinetServlet</servlet-name>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>Auth</filter-name>
+        <servlet-name>CartServlet</servlet-name>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>Auth</filter-name>
         <servlet-name>ClientManagementServlet</servlet-name>
     </filter-mapping>
     <filter-mapping>
-        <filter-name>AuthEmployee</filter-name>
+        <filter-name>Auth</filter-name>
+        <servlet-name>ProductSettingsServlet</servlet-name>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>ClientAccess</filter-name>
+        <servlet-name>CabinetServlet</servlet-name>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>EmployeeAccess</filter-name>
+        <servlet-name>ClientManagementServlet</servlet-name>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>EmployeeAccess</filter-name>
         <servlet-name>ProductSettingsServlet</servlet-name>
     </filter-mapping>
 
@@ -35,6 +66,10 @@
     <servlet>
         <servlet-name>ClientManagementServlet</servlet-name>
         <servlet-class>servlets.ClientManagementServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CabinetServlet</servlet-name>
+        <servlet-class>servlets.CabinetServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>CartServlet</servlet-name>
@@ -54,6 +89,10 @@
         <url-pattern>/login</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>AuthServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>ProductSettingsServlet</servlet-name>
         <url-pattern>/tariffs/*</url-pattern>
     </servlet-mapping>
@@ -68,6 +107,10 @@
     <servlet-mapping>
         <servlet-name>ClientManagementServlet</servlet-name>
         <url-pattern>/contracts/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CabinetServlet</servlet-name>
+        <url-pattern>/my/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>CartServlet</servlet-name>

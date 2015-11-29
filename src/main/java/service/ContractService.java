@@ -103,6 +103,13 @@ public class ContractService {
         return false;
     }
 
+    public final List<Contract> getByClient(final Client client) {
+        List<Contract> resultList = entityManager
+                .createNamedQuery(Contract.GET_BY_CLIENT, Contract.class)
+                .setParameter("client", client).getResultList();
+        return resultList;
+    }
+
     /**
      * Get list of the options which could be added to the contract
      *

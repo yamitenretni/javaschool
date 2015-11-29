@@ -92,7 +92,7 @@ public class ClientService {
      * @param passport checking passport
      * @return true if client doesn't violate unique constraints
      */
-    public boolean hasUniquePassport(final long id, final String passport) {
+    public final boolean hasUniquePassport(final long id, final String passport) {
         List<Client> resultList = entityManager
                 .createNamedQuery(Client.HAS_UNIQUE_PASSPORT, Client.class)
                 .setParameter("id", id)
@@ -101,6 +101,24 @@ public class ClientService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Get client by user.
+     * @param user given user
+     * @return client linked with given user
+     */
+    public final Client getByUser(final User user) {
+        List<Client> resultList = entityManager
+                .createNamedQuery(Client.GET_BY_USER, Client.class)
+                .setParameter("user", user).getResultList();
+        if (resultList.isEmpty()) {
+            return null;
+        }
+        else {
+            return resultList.get(0);
+        }
+
     }
 
     /**

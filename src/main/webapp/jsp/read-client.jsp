@@ -23,8 +23,6 @@
 
     <p><label>E-mail:</label> ${client.user.login}</p>
 
-    <p><label>Password:</label> ${client.user.password}</p>
-
     <table class="table">
         <caption>Contracts:</caption>
         <thead>
@@ -53,6 +51,7 @@
         </c:forEach>
         </tbody>
     </table>
+    <a href="/clients" class="btn">Back to clients</a>
 
 </div>
 </body>

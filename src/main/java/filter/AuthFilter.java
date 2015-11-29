@@ -13,7 +13,7 @@ import java.net.URLEncoder;
 /**
  * Authorisation filter.
  */
-public class AuthEmployeeFilter implements Filter{
+public class AuthFilter implements Filter{
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
 
@@ -27,23 +27,16 @@ public class AuthEmployeeFilter implements Filter{
 
         String path = req.getRequestURI();
 
-        User currentUser;
-        if (session.getAttribute("currentUser") != null) {
-            currentUser = (User) session.getAttribute("currentUser");
-            if (currentUser.getRole() != Role.EMPLOYEE) {
-                resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Nothing to do here");
-            }
-            else {
-                filterChain.doFilter(servletRequest, servletResponse);
-            }
-        }
-        else {
+        if (session.getAttribute("currentUser") == null) {
             String refPathParam = "";
             if (path != null) {
                 refPathParam = "?refpath=" + URLEncoder.encode(path, "UTF-8");
 
             }
             resp.sendRedirect("/login" + refPathParam);
+        }
+        else {
+            filterChain.doFilter(servletRequest, servletResponse);
         }
     }
 

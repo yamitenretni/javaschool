@@ -21,6 +21,11 @@ public class AuthServlet extends HttpServlet {
      */
     private static final Pattern LOGIN_PATTERN = Pattern.compile("^/login$");
 
+    /**
+     * URL regexp for login.
+     */
+    private static final Pattern LOGOUT_PATTERN = Pattern.compile("^/logout$");
+
     private static final UserService USER_SVC = new UserService();
 
     @Override
@@ -29,10 +34,15 @@ public class AuthServlet extends HttpServlet {
         final String refPath = req.getHeader("referer");
 
         Matcher loginMatcher = LOGIN_PATTERN.matcher(actionPath);
+        Matcher logoutMatcher = LOGOUT_PATTERN.matcher(actionPath);
 
         if (loginMatcher.matches()) {
             req.setAttribute("refpath", req.getParameter("refpath"));
             req.getRequestDispatcher("/jsp/login.jsp").forward(req, resp);
+        }
+        if (logoutMatcher.matches()) {
+            req.getSession().setAttribute("currentUser", null);
+            resp.sendRedirect("/login");
         }
 
     }
