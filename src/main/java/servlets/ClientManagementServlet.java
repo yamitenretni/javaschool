@@ -92,6 +92,11 @@ public class ClientManagementServlet extends HttpServlet {
     private static final Pattern CONTRACT_UNLOCK_PATTERN = Pattern.compile("^/contracts/(\\d+)/unlock$");
 
     /**
+     * URL regexp for client's search.
+     */
+    private static final Pattern CLIENT_SEARCH_PATTERN = Pattern.compile("^/clients/search$");
+
+    /**
      * Date format for parsing date.
      */
     private final DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
@@ -231,6 +236,9 @@ public class ClientManagementServlet extends HttpServlet {
         Matcher clientAddFirstMatcher = clientAddFirstPattern.matcher(actionPath);
         Matcher clientAddSecondMatcher = clientAddSecondPattern.matcher(actionPath);
         Matcher clientAddThirdMatcher = clientAddThirdPattern.matcher(actionPath);
+        Matcher searchClientMatcher = CLIENT_SEARCH_PATTERN.matcher(actionPath);
+
+        HttpSession session = req.getSession();
 
         /**
          * First step of client registration wizard submit.
@@ -270,8 +278,6 @@ public class ClientManagementServlet extends HttpServlet {
                         birthDate,
                         passport,
                         address);
-
-                HttpSession session = req.getSession();
                 session.setAttribute("newClient", newClient);
 
                 resp.sendRedirect("/clients/add/step2");
@@ -291,7 +297,7 @@ public class ClientManagementServlet extends HttpServlet {
         /**
          * Second step of client registration wizard submit.
          */
-        if (clientAddSecondMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
+        else if (clientAddSecondMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
             List<String> validErrs = new ArrayList<>();
             // TODO: 26.11.2015 add redirect to the first step if session doesn't contain client
 
@@ -313,8 +319,6 @@ public class ClientManagementServlet extends HttpServlet {
             }
 
             if (validErrs.isEmpty()) {
-                HttpSession session = req.getSession();
-
                 Client newClient = (Client) session.getAttribute("newClient");
                 List<ContractOption> activatedOptions = new ArrayList<>();
                 if (selectedOptions != null) {
@@ -341,8 +345,7 @@ public class ClientManagementServlet extends HttpServlet {
         /**
          * Third step of client registration wizard submit.
          */
-        if (clientAddThirdMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
-            HttpSession session = req.getSession();
+        else if (clientAddThirdMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
             Contract newContract = (Contract) session.getAttribute("newContract");
             Client newClient = (Client) session.getAttribute("newClient");
 
@@ -359,6 +362,21 @@ public class ClientManagementServlet extends HttpServlet {
             newClient.setContracts(newClientContracts);
 
             resp.sendRedirect("/clients");
+        }
+
+        else if (searchClientMatcher.matches()) {
+            String contractNumber = req.getParameter("contract");
+
+            Contract contract = contractSvc.getByNumber(contractNumber);
+
+            if (contract != null) {
+                resp.sendRedirect("/clients/" + contract.getClient().getId());
+            }
+            else {
+                // TODO: 30.11.2015 why you doesn't work?!
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "No such client");
+            }
+
         }
     }
 }

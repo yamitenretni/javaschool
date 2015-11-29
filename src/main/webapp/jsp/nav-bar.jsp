@@ -41,9 +41,9 @@
                         </ul>
                     </li>
                 </ul>
-                <form class="navbar-form navbar-left" role="search" action="/clients/search">
+                <form class="navbar-form navbar-left" role="search" action="/clients/search" method="post">
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search" pattern="\d+" required>
+                        <input type="text" class="form-control" name="contract" placeholder="Search by contract" pattern="\d+" required>
                     </div>
                     <button type="submit" class="btn btn-default">Submit</button>
                 </form>

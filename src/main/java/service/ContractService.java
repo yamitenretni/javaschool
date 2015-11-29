@@ -151,6 +151,22 @@ public class ContractService {
     }
 
     /**
+     * Get contract with given number.
+     *
+     * @param number number of contract
+     * @return found contract
+     */
+    public final Contract getByNumber(final String number) {
+        List<Contract> resultList = entityManager
+                .createNamedQuery(Contract.GET_BY_NUMBER, Contract.class)
+                .setParameter("number", number).getResultList();
+        if (!resultList.isEmpty()) {
+            return resultList.get(0);
+        }
+        return null;
+    }
+
+    /**
      * Get list of the options which could be added to the contract
      *
      * @param contract given contract

@@ -10,12 +10,15 @@ import java.util.List;
         @NamedQuery(name = Contract.HAS_UNIQUE_NUMBER,
                 query = "select c from Contract c where c.id <> :id and c.number = :number"),
         @NamedQuery(name = Contract.GET_BY_CLIENT,
-                query = "select c from Contract c where c.client = :client")
+                query = "select c from Contract c where c.client = :client"),
+        @NamedQuery(name = Contract.GET_BY_NUMBER,
+                query = "select c from Contract c where c.number = :number")
 })
 
 public class Contract {
     public static final String HAS_UNIQUE_NUMBER = "Contract.hasUniqueNumber";
     public static final String GET_BY_CLIENT = "Contract.getByClient";
+    public static final String GET_BY_NUMBER = "Contract.getByNumber";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -61,6 +64,7 @@ public class Contract {
         }
         return true;
     }
+
     public long getId() {
         return id;
     }
