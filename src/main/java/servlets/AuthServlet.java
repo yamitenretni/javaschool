@@ -1,5 +1,7 @@
 package servlets;
 
+import domain.Role;
+import domain.User;
 import service.UserService;
 
 import javax.servlet.ServletException;
@@ -67,9 +69,16 @@ public class AuthServlet extends HttpServlet {
                 req.setAttribute("errors", validErrs);
                 req.setAttribute("refpath", refPath);
                 req.getRequestDispatcher("/jsp/login.jsp").forward(req, resp);
-            }
-            else {
-                req.getSession().setAttribute("currentUser", USER_SVC.getById(userId));
+            } else {
+                User currentUser = USER_SVC.getById(userId);
+                req.getSession().setAttribute("currentUser", currentUser);
+                if (refPath == "") {
+                    if (currentUser.getRole() == Role.CLIENT) {
+                        refPath = "/my";
+                    } else if (currentUser.getRole() == Role.EMPLOYEE) {
+                        refPath = "/clients";
+                    }
+                }
                 resp.sendRedirect(refPath);
             }
         }
