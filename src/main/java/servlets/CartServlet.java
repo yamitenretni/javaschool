@@ -50,7 +50,7 @@ public class CartServlet extends HttpServlet {
     /**
      * URL regexp for saving changes.
      */
-    private static final Pattern SAVE_CHANGES = Pattern.compile("^/cart/save/(\\d+)$");
+    private static final Pattern SAVE_CHANGES = Pattern.compile("^/cart/(\\d+)/save$");
 
     /**
      * Get service for tariffs.
@@ -126,7 +126,7 @@ public class CartServlet extends HttpServlet {
 
             session.setAttribute("cartForm", cartForm);
 
-            resp.sendRedirect("/contracts/" + contractId);
+            resp.sendRedirect(refPath);
         }
 
         /**

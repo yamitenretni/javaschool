@@ -63,6 +63,6 @@
                 </table>
             </div>
         </c:if>
-        <a href="/cart/save/${cartPosition.contract.id}" class="btn btn-primary">Save changes</a>
+        <a href="/cart/${cartPosition.contract.id}/save" class="btn btn-primary">Save changes</a>
     </c:forEach>
 </c:if>

@@ -33,6 +33,10 @@
                         </c:forEach>
                     </ul>
                 </td>
+                <td>
+                    <a href="/my/contracts/${contract.id}" class="btn">Contract info</a><br/>
+                    <a href="/my/contracts/block/${contract.id}" class="btn">Block contract</a>
+                </td>
             </tr>
         </c:forEach>
         </tbody>

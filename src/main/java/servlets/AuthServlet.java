@@ -33,7 +33,6 @@ public class AuthServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String actionPath = req.getRequestURI();
-        final String refPath = req.getHeader("referer");
 
         Matcher loginMatcher = LOGIN_PATTERN.matcher(actionPath);
         Matcher logoutMatcher = LOGOUT_PATTERN.matcher(actionPath);
@@ -44,6 +43,7 @@ public class AuthServlet extends HttpServlet {
         }
         if (logoutMatcher.matches()) {
             req.getSession().setAttribute("currentUser", null);
+            req.getSession().setAttribute("cartForm", null);
             resp.sendRedirect("/login");
         }
 
