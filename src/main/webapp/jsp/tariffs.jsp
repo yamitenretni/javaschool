@@ -9,6 +9,7 @@
 </head>
 <body>
 <div class="page">
+    <%@include file="/jsp/nav-bar.jsp" %>
     <a href="/tariffs/add" class="btn btn-primary">Add Tariff</a>
     <a href="/options" class="btn">Manage Options</a>
     <table class="table">

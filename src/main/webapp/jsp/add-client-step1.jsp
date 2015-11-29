@@ -9,6 +9,7 @@
 </head>
 <body>
 <div class="page">
+    <%@include file="/jsp/nav-bar.jsp" %>
     <form action="/clients/add/step1" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="firstName">First name</label>

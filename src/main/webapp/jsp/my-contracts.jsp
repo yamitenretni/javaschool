@@ -10,6 +10,7 @@
 </head>
 <body>
 <div class="page">
+    <%@include file="/jsp/nav-bar.jsp" %>
     <h3>Welcome to your personal area</h3>
 
     <table class="table">

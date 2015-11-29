@@ -9,6 +9,7 @@
 </head>
 <body>
 <div class="page">
+    <%@include file="/jsp/nav-bar.jsp" %>
     <form action="/tariffs/edit/${editedTariff.id}" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="tariff_name">Tariff name</label>

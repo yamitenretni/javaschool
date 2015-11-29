@@ -47,6 +47,10 @@ public class User {
         role = newRole;
     }
 
+    public final String getRoleName() {
+        return role.name();
+    }
+
     public static String getMd5(final String s) {
         MessageDigest md = null;
 

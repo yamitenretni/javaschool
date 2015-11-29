@@ -10,6 +10,7 @@
 </head>
 <body>
 <div class="page">
+    <%@include file="/jsp/nav-bar.jsp" %>
     <h3>Check this data and confirm saving:</h3>
 
     <div class="panel panel-default">

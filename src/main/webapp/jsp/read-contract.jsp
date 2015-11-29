@@ -10,6 +10,7 @@
 </head>
 <body>
 <div class="page">
+    <%@include file="/jsp/nav-bar.jsp" %>
     <p>
         <label>Phone number:</label> +${contract.number}
         <c:if test="${contract.blocked}">

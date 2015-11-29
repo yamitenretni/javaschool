@@ -9,6 +9,7 @@
 </head>
 <body>
 <div class="page">
+    <%@include file="/jsp/nav-bar.jsp" %>
     <a href="/clients/add/step1" class="btn btn-primary">Add Client</a>
     <table class="table">
         <caption>All clients:</caption>
@@ -21,7 +22,10 @@
         <tbody>
         <c:forEach items="${clients}" var="client">
             <tr>
-                <td><a href="/clients/${client.id}">${client.firstName} ${client.lastName}</a></td>
+                <td><a href="/clients/${client.id}">${client.firstName} ${client.lastName}</a>
+                    <c:if test="${client.blocked}">
+                        <code>Blocked</code>
+                    </c:if></td>
                 <td>
                     <ul>
                         <c:forEach items="${client.contracts}" var="contract">

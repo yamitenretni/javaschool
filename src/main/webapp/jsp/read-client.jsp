@@ -10,6 +10,7 @@
 </head>
 <body>
 <div class="page">
+    <%@include file="/jsp/nav-bar.jsp" %>
     <p><label>Name:</label> ${client.firstName} ${client.lastName}
         <c:if test="${client.blocked}">
             <code>Blocked since
