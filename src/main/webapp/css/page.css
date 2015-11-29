@@ -12,3 +12,9 @@
 .dropdown:hover .dropdown-menu {
     display: block;
 }
+.cart-table tr:first-child td {
+    border-top: none;
+}
+.cart-table td:first-child {
+    vertical-align: middle;
+}
