@@ -32,6 +32,11 @@ public class ClientService {
     private BaseDAO<Client> clientDao = new BaseDAOImpl<>();
 
     /**
+     * Get service for contracts
+     */
+    private ContractService contractService = new ContractService();
+
+    /**
      * Get client by id from database
      *
      * @param id client's id
@@ -105,6 +110,7 @@ public class ClientService {
 
     /**
      * Get client by user.
+     *
      * @param user given user
      * @return client linked with given user
      */
@@ -114,8 +120,7 @@ public class ClientService {
                 .setParameter("user", user).getResultList();
         if (resultList.isEmpty()) {
             return null;
-        }
-        else {
+        } else {
             return resultList.get(0);
         }
 
@@ -149,6 +154,36 @@ public class ClientService {
         transaction.begin();
         clientDao.merge(client);
         transaction.commit();
+    }
+
+    /**
+     * Block client and all his contracts.
+     *
+     * @param client    blocking client
+     * @param blockUser user, who block client
+     */
+    public final void blockClient(final Client client, final User blockUser) {
+        client.setBlockingDate(new Date());
+
+        for (Contract contract : client.getContracts()) {
+            contractService.blockContract(contract, blockUser);
+        }
+
+        transaction.begin();
+        clientDao.merge(client);
+        transaction.commit();
+    }
+
+    public final void unlockClient(final Client client) {
+        client.setBlockingDate(null);
+
+        transaction.begin();
+        clientDao.merge(client);
+        transaction.commit();
+
+        for (Contract contract : client.getContracts()) {
+            contractService.unlockContract(contract);
+        }
     }
 
     /**

@@ -10,12 +10,16 @@
 </head>
 <body>
 <div class="page">
-    <p><label>First name:</label> ${client.firstName}</p>
-
-    <p><label>Last name:</label> ${client.lastName}</p>
+    <p><label>Name:</label> ${client.firstName} ${client.lastName}
+        <c:if test="${client.blocked}">
+            <code>Blocked since
+                <fmt:formatDate pattern="dd.MM.yyyy" value="${client.blockingDate}"/>
+            </code>
+        </c:if>
+    </p>
 
     <p><label>Date of birth:</label> <fmt:formatDate pattern="dd.MM.yyyy"
-                                                     value="${client.birthDate}" /></p>
+                                                     value="${client.birthDate}"/></p>
 
     <p><label>Passport data:</label> ${client.passportData}</p>
 
@@ -36,7 +40,16 @@
         <tbody>
         <c:forEach items="${client.contracts}" var="contract">
             <tr>
-                <td>${contract.number}</td>
+                <td>
+                    +${contract.number}
+                    <c:if test="${contract.blocked}">
+                        <br/>
+                        <code>
+                            Blocked since
+                            <fmt:formatDate pattern="dd.MM.yyyy" value="${contract.blockingDate}"/>
+                        </code>
+                    </c:if>
+                </td>
                 <td>${contract.tariff.name}</td>
                 <td>
                     <ul>
@@ -45,12 +58,32 @@
                         </c:forEach>
                     </ul>
                 </td>
-                <td><a href="/contracts/${contract.id}" class="btn">Contract info</a><br/>
-                <a href="/contracts/block/${contract.id}" class="btn">Block contract</a></td>
+                <td>
+                    <a href="/contracts/${contract.id}" class="btn">Contract info</a><br/>
+                    <c:choose>
+                        <c:when test="${not contract.blocked}">
+                            <a href="/contracts/${contract.id}/block" class="btn">Block contract</a>
+                        </c:when>
+                        <c:otherwise>
+                            <c:if test="${not client.blocked}">
+                                <a href="/contracts/${contract.id}/unlock" class="btn">Unlock contract</a>
+                            </c:if>
+                        </c:otherwise>
+                    </c:choose>
+                </td>
             </tr>
         </c:forEach>
         </tbody>
     </table>
+    <c:choose>
+        <c:when test="${not client.blocked}">
+            <a href="/clients/${client.id}/block" class="btn btn-danger">Block client</a>
+        </c:when>
+        <c:otherwise>
+                <a href="/clients/${client.id}/unlock" class="btn btn-success">Unlock client</a>
+        </c:otherwise>
+    </c:choose>
+
     <a href="/clients" class="btn">Back to clients</a>
 
 </div>

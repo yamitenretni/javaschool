@@ -66,11 +66,30 @@ public class ClientManagementServlet extends HttpServlet {
      * URL regexp for the third step of client adding.
      */
     private final Pattern clientAddThirdPattern = Pattern.compile("^/clients/add/step3$");
+    /**
+     * URL regexp for the client blocking.
+     */
+    private static final Pattern CLIENT_BLOCK_PATTERN = Pattern.compile("^/clients/(\\d+)/block$");
+
+    /**
+     * URL regexp for the client unlocking.
+     */
+    private static final Pattern CLIENT_UNLOCK_PATTERN = Pattern.compile("^/clients/(\\d+)/unlock$");
 
     /**
      * URL regexp for the contract page.
      */
     private final Pattern contractPagePattern = Pattern.compile("^/contracts/(\\d+)$");
+
+    /**
+     * URL regexp for the contract blocking.
+     */
+    private static final Pattern CONTRACT_BLOCK_PATTERN = Pattern.compile("^/contracts/(\\d+)/block$");
+
+    /**
+     * URL regexp for the contract unlocking.
+     */
+    private static final Pattern CONTRACT_UNLOCK_PATTERN = Pattern.compile("^/contracts/(\\d+)/unlock$");
 
     /**
      * Date format for parsing date.
@@ -81,6 +100,7 @@ public class ClientManagementServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String actionPath = req.getRequestURI();
         final String refPath = req.getHeader("referer");
+        User currentUser = (User) req.getSession().getAttribute("currentUser");
 
         Matcher clientAddFirstMatcher = clientAddFirstPattern.matcher(actionPath);
         Matcher clientAddSecondMatcher = clientAddSecondPattern.matcher(actionPath);
@@ -89,7 +109,13 @@ public class ClientManagementServlet extends HttpServlet {
         Matcher clientListMatcher = clientListPattern.matcher(actionPath);
         Matcher clientPageMatcher = clientPagePattern.matcher(actionPath);
 
+        Matcher clientBlockMatcher = CLIENT_BLOCK_PATTERN.matcher(actionPath);
+        Matcher clientUnlockMatcher = CLIENT_UNLOCK_PATTERN.matcher(actionPath);
+
         Matcher contractPageMatcher = contractPagePattern.matcher(actionPath);
+
+        Matcher contractBlockMatcher = CONTRACT_BLOCK_PATTERN.matcher(actionPath);
+        Matcher contractUnlockMatcher = CONTRACT_UNLOCK_PATTERN.matcher(actionPath);
 
         /**
          * Get client list.
@@ -102,7 +128,7 @@ public class ClientManagementServlet extends HttpServlet {
         /**
          * Get client info.
          */
-        if (clientPageMatcher.matches()) {
+        else if (clientPageMatcher.matches()) {
             long clientId = Long.parseLong(clientPageMatcher.group(1));
             req.setAttribute("client", clientSvc.getById(clientId));
             req.getRequestDispatcher("/jsp/read-client.jsp").forward(req, resp);
@@ -111,27 +137,26 @@ public class ClientManagementServlet extends HttpServlet {
         /**
          * Get first step of client registration.
          */
-        if (clientAddFirstMatcher.matches()) {
+        else if (clientAddFirstMatcher.matches()) {
             req.getRequestDispatcher("/jsp/add-client-step1.jsp").forward(req, resp);
         }
         /**
          * Get second step of client registration.
          */
-        if (clientAddSecondMatcher.matches()) {
+        else if (clientAddSecondMatcher.matches()) {
             req.setAttribute("tariffs", tariffSvc.getActiveTariffs());
             req.getRequestDispatcher("/jsp/add-client-step2.jsp").forward(req, resp);
         }
         /**
          * Get third step of client registration.
          */
-        if (clientAddThirdMatcher.matches()) {
+        else if (clientAddThirdMatcher.matches()) {
             req.getRequestDispatcher("/jsp/add-client-step3.jsp").forward(req, resp);
         }
-
         /**
          * Get contract info.
          */
-        if (contractPageMatcher.matches()) {
+        else if (contractPageMatcher.matches()) {
             long contractId = Long.parseLong(contractPageMatcher.group(1));
             Contract contract = contractSvc.getById(contractId);
             List<ContractOption> availableOptions = contractSvc.getAvailableOptions(contract);
@@ -141,6 +166,59 @@ public class ClientManagementServlet extends HttpServlet {
             req.setAttribute("tariffs", tariffSvc.getActiveTariffs());
             req.getRequestDispatcher("/jsp/read-contract.jsp").forward(req, resp);
         }
+        /**
+         * Block contract.
+         */
+        else if (contractBlockMatcher.matches()) {
+            long contractId = Long.parseLong(contractBlockMatcher.group(1));
+            Contract contract = contractSvc.getById(contractId);
+
+            if (contract.getBlockingDate() == null) {
+                contractSvc.blockContract(contract, currentUser);
+            }
+
+            resp.sendRedirect(refPath);
+        }
+        /**
+         * Unlock contract.
+         */
+        else if (contractUnlockMatcher.matches()) {
+            long contractId = Long.parseLong(contractUnlockMatcher.group(1));
+            Contract contract = contractSvc.getById(contractId);
+
+            if (contract.getBlockingDate() != null) {
+                contractSvc.unlockContract(contract);
+            }
+
+            resp.sendRedirect(refPath);
+        }
+        /**
+         * Block client.
+         */
+        else if (clientBlockMatcher.matches()) {
+            long clientId = Long.parseLong(clientBlockMatcher.group(1));
+            Client client = clientSvc.getById(clientId);
+
+            if (client.getBlockingDate() == null) {
+                clientSvc.blockClient(client, currentUser);
+            }
+
+            resp.sendRedirect(refPath);
+        }
+        /**
+         * Unlock client.
+         */
+        else if (clientUnlockMatcher.matches()) {
+            long clientId = Long.parseLong(clientUnlockMatcher.group(1));
+            Client client = clientSvc.getById(clientId);
+
+            if (client.getBlockingDate() != null) {
+                clientSvc.unlockClient(client);
+            }
+
+            resp.sendRedirect(refPath);
+        }
+
 
     }
 

@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -24,7 +25,15 @@
         <tbody>
         <c:forEach items="${contracts}" var="contract">
             <tr>
-                <td>+${contract.number}</td>
+                <td>+${contract.number}
+                    <c:if test="${contract.blocked}">
+                        <br/>
+                        <code>
+                            Blocked since
+                            <fmt:formatDate pattern="dd.MM.yyyy" value="${contract.blockingDate}"/>
+                        </code>
+                    </c:if>
+                </td>
                 <td>${contract.tariff.name}</td>
                 <td>
                     <ul>
@@ -35,7 +44,17 @@
                 </td>
                 <td>
                     <a href="/my/contracts/${contract.id}" class="btn">Contract info</a><br/>
-                    <a href="/my/contracts/block/${contract.id}" class="btn">Block contract</a>
+
+                    <c:choose>
+                        <c:when test="${not contract.blocked}">
+                            <a href="/my/contracts/${contract.id}/block" class="btn">Block contract</a>
+                        </c:when>
+                        <c:otherwise>
+                            <c:if test="${contract.blockingUser == currentUser}">
+                                <a href="/my/contracts/${contract.id}/unlock" class="btn">Unlock contract</a>
+                            </c:if>
+                        </c:otherwise>
+                    </c:choose>
                 </td>
             </tr>
         </c:forEach>

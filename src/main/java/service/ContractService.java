@@ -3,14 +3,12 @@ package service;
 import dao.BaseDAO;
 import dao.BaseDAOImpl;
 import dao.TransactionManager;
-import domain.Client;
-import domain.Contract;
-import domain.ContractOption;
-import domain.ContractTariff;
+import domain.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -92,7 +90,7 @@ public class ContractService {
      * @param number checking number
      * @return true if number is unique
      */
-    public boolean hasUniqueNumber(final long id, final String number) {
+    public final boolean hasUniqueNumber(final long id, final String number) {
         List<Contract> resultList = entityManager
                 .createNamedQuery(Contract.HAS_UNIQUE_NUMBER, Contract.class)
                 .setParameter("id", id)
@@ -103,6 +101,48 @@ public class ContractService {
         return false;
     }
 
+    /**
+     * Block contract since current date.
+     *
+     * @param contract  blocking contract
+     * @param blockUser user, who block contract
+     * @return blocked contract
+     */
+    public final Contract blockContract(final Contract contract, final User blockUser) {
+        contract.setBlockingDate(new Date());
+        contract.setBlockingUser(blockUser);
+
+        transaction.begin();
+        Contract blockedContract = contractDao.merge(contract);
+        transaction.commit();
+
+        return blockedContract;
+    }
+
+    /**
+     * Unlock given contract.
+     *
+     * @param contract unlocking contract
+     * @return unlocked contract
+     */
+    public final void unlockContract(final Contract contract) {
+        if (contract.getClient().getBlockingDate() == null) {
+            contract.setBlockingDate(null);
+            contract.setBlockingUser(null);
+
+            transaction.begin();
+            contractDao.merge(contract);
+            transaction.commit();
+        }
+
+    }
+
+    /**
+     * Get contracts of the given client.
+     *
+     * @param client client for the search
+     * @return list of client's contracts
+     */
     public final List<Contract> getByClient(final Client client) {
         List<Contract> resultList = entityManager
                 .createNamedQuery(Contract.GET_BY_CLIENT, Contract.class)

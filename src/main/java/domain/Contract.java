@@ -55,6 +55,12 @@ public class Contract {
         activatedOptions = newActivatedOptions;
     }
 
+    public final boolean isBlocked() {
+        if (blockingDate == null && blockingUser == null) {
+            return false;
+        }
+        return true;
+    }
     public long getId() {
         return id;
     }

@@ -41,6 +41,12 @@ public class Client {
     private List<Contract> contracts;
 
     /**
+     * Date of blocking.
+     */
+    @Column(name = "blocking_date")
+    private Date blockingDate;
+
+    /**
      * Client's first name.
      */
     @Column(name = "first_name")
@@ -101,6 +107,13 @@ public class Client {
         birthDate = newBirthDate;
         passportData = newPassportData;
         address = newAddress;
+    }
+
+    public final boolean isBlocked() {
+        if (blockingDate == null) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -236,5 +249,23 @@ public class Client {
      */
     public final void setAddress(final String newAddress) {
         address = newAddress;
+    }
+
+    /**
+     * blocking date getter.
+     *
+     * @return blocking date
+     */
+    public final Date getBlockingDate() {
+        return blockingDate;
+    }
+
+    /**
+     * blocking date setter.
+     *
+     * @param newBlockingDate blocking date
+     */
+    public final void setBlockingDate(final Date newBlockingDate) {
+        blockingDate = newBlockingDate;
     }
 }

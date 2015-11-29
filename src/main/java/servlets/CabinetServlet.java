@@ -32,6 +32,15 @@ public class CabinetServlet extends HttpServlet {
     private static final Pattern CONTRACT_PAGE_PATTERN = Pattern.compile("^/my/contracts/(\\d+)$");
 
     /**
+     * URL regexp for blocking contract in the cabinet.
+     */
+    private static final Pattern CONTRACT_BLOCK_PATTERN = Pattern.compile("^/my/contracts/(\\d+)/block$");
+    /**
+     * URL regexp for unlocking contract in the cabinet.
+     */
+    private static final Pattern CONTRACT_UNLOCK_PATTERN = Pattern.compile("^/my/contracts/(\\d+)/unlock");
+
+    /**
      * Get service for contracts.
      */
     private static final ContractService CONTRACT_SVC = new ContractService();
@@ -48,9 +57,13 @@ public class CabinetServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String actionPath = req.getRequestURI();
+        String refPath = req.getHeader("referer");
 
         Matcher mainPageMatcher = MAIN_PAGE_PATTERN.matcher(actionPath);
         Matcher contractPageMatcher = CONTRACT_PAGE_PATTERN.matcher(actionPath);
+
+        Matcher contractBlockMatcher = CONTRACT_BLOCK_PATTERN.matcher(actionPath);
+        Matcher contractUnlockMatcher = CONTRACT_UNLOCK_PATTERN.matcher(actionPath);
 
         HttpSession session = req.getSession();
         User currentUser = (User) session.getAttribute("currentUser");
@@ -74,6 +87,24 @@ public class CabinetServlet extends HttpServlet {
             else {
                 resp.sendError(HttpServletResponse.SC_FORBIDDEN, "You can't watch this page");
             }
+        }
+        else if (contractBlockMatcher.matches()) {
+            long contractId = Long.parseLong(contractBlockMatcher.group(1));
+            Contract contract = CONTRACT_SVC.getById(contractId);
+
+            if (!contract.isBlocked()) {
+                CONTRACT_SVC.blockContract(contract, currentUser);
+            }
+            resp.sendRedirect(refPath);
+        }
+        else if (contractUnlockMatcher.matches()) {
+            long contractId = Long.parseLong(contractUnlockMatcher.group(1));
+            Contract contract = CONTRACT_SVC.getById(contractId);
+
+            if (contract.getBlockingUser() == currentUser) {
+                CONTRACT_SVC.unlockContract(contract);
+            }
+            resp.sendRedirect(refPath);
         }
         //super.doGet(req, resp);
     }

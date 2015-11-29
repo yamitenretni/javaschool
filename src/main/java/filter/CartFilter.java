@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,8 +44,12 @@ public class CartFilter implements Filter {
             long contractId = Long.parseLong(cartUrlMatcher.group(1));
             Contract contract = contractSvc.getById(contractId);
 
-            if (currentUser.getRole() == Role.EMPLOYEE || contract.getClient().getUser() == currentUser) {
-                filterChain.doFilter(req, resp);
+            Role userRole = currentUser.getRole();
+            User contractUser = contract.getClient().getUser();
+            Date blockDate = contract.getBlockingDate();
+
+            if ((userRole == Role.EMPLOYEE || contractUser == currentUser) && blockDate == null) {
+                    filterChain.doFilter(req, resp);
             }
             else {
                 if (refPath == null) {
