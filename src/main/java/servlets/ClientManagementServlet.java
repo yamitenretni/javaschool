@@ -1,6 +1,8 @@
 package servlets;
 
 import domain.*;
+import form.CartContractForm;
+import form.CartForm;
 import service.ClientService;
 import service.ContractOptionService;
 import service.ContractService;
@@ -105,7 +107,8 @@ public class ClientManagementServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String actionPath = req.getRequestURI();
         final String refPath = req.getHeader("referer");
-        User currentUser = (User) req.getSession().getAttribute("currentUser");
+        HttpSession session = req.getSession();
+        User currentUser = (User) session.getAttribute("currentUser");
 
         Matcher clientAddFirstMatcher = clientAddFirstPattern.matcher(actionPath);
         Matcher clientAddSecondMatcher = clientAddSecondPattern.matcher(actionPath);
@@ -164,11 +167,24 @@ public class ClientManagementServlet extends HttpServlet {
         else if (contractPageMatcher.matches()) {
             long contractId = Long.parseLong(contractPageMatcher.group(1));
             Contract contract = contractSvc.getById(contractId);
-            List<ContractOption> availableOptions = contractSvc.getAvailableOptions(contract);
+
+            CartForm cartForm;
+            CartContractForm cartContractForm = null;
+
+            if (session.getAttribute("cartForm") != null) {
+                cartForm = (CartForm) session.getAttribute("cartForm");
+                cartContractForm = cartForm.getCartContractForm(contract);
+            }
+
+            List<ContractTariff> availableTariffs = contractSvc.getAvailableTariffs(contract, cartContractForm);
+            List<ContractOption> availableOptions = contractSvc.getAvailableOptions(contract, cartContractForm);
+
+
 
             req.setAttribute("contract", contract);
             req.setAttribute("availableOptions", availableOptions);
-            req.setAttribute("tariffs", tariffSvc.getActiveTariffs());
+            req.setAttribute("tariffs", availableTariffs);
+            req.setAttribute("incompatibleOptions", contractSvc.getIncompatibleOptions(contract, cartContractForm));
             req.getRequestDispatcher("/jsp/read-contract.jsp").forward(req, resp);
         }
         /**

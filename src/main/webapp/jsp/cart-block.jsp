@@ -1,4 +1,5 @@
-<c:if test="${not empty cartForm.cartContractForms}">
+<c:out value="${cartForm.cartContractForms}"></c:out>
+<c:if test="${not empty sessionScope.cartForm.cartContractForms}">
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Your unsaved changes:</h3>
@@ -33,10 +34,22 @@
                             <c:if test="${cartPosition.newTariff != null}">
                                 <tr>
                                     <td><span class="label label-warning">Changed</span></td>
-                                    <td>${cartPosition.contract.tariff.name} -> ${cartPosition.newTariff.name}</td>
+                                    <td>${cartPosition.contract.tariff.name} &rightarrow; ${cartPosition.newTariff.name}(${cartPosition.newTariff.monthlyCost}
+                                        every month)
+                                    </td>
                                     <td><a href="/cart/${cartPosition.contract.id}/newtariff/cancel">Cancel</a></td>
                                 </tr>
                             </c:if>
+                            <c:forEach items="${cartPosition.unsupportedOptions}" var="option">
+                                <tr>
+                                    <td><span class="label label-danger">Deleted</span></td>
+                                    <td>${option.name} (${option.connectionCost} once + ${option.monthlyCost} every
+                                        month)
+                                    </td>
+                                    <td>Not available for tariff
+                                    </td>
+                                </tr>
+                            </c:forEach>
                             <c:forEach items="${cartPosition.newOptions}" var="option">
                                 <tr>
                                     <td><span class="label label-success">New</span></td>
@@ -57,6 +70,16 @@
                                     </td>
                                 </tr>
                             </c:forEach>
+                            <c:forEach  items="${cartPosition.dependingOptions}" var="option">
+                                <tr>
+                                    <td><span class="label label-danger">Deleted</span></td>
+                                    <td>${option.name} (${option.connectionCost} once + ${option.monthlyCost} every
+                                        month)
+                                    </td>
+                                    <td>Need mandatory option</td>
+                                </tr>
+                            </c:forEach>
+
 
                             </tbody>
                         </table>

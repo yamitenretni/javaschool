@@ -44,6 +44,9 @@ public class ContractOption {
             inverseJoinColumns = {@JoinColumn(name = "mand_option_id")})
     private List<ContractOption> mandatoryOptions;
 
+    @ManyToMany (mappedBy = "mandatoryOptions")
+    private List<ContractOption> dependOptions;
+
     public ContractOption() {
         incompatibleOptions = new ArrayList<>();
         mandatoryOptions = new ArrayList<>();
@@ -107,5 +110,9 @@ public class ContractOption {
 
     public final void setMandatoryOptions(final List<ContractOption> options) {
         mandatoryOptions = options;
+    }
+
+    public final List<ContractOption> getDependOptions() {
+        return dependOptions;
     }
 }

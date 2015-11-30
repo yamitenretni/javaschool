@@ -49,7 +49,11 @@ public class CartForm {
         Iterator it = cartContractForms.iterator();
         while (it.hasNext()) {
             CartContractForm position = (CartContractForm) it.next();
-            if (position.getNewTariff() == null && position.getDeactivatedOptions().isEmpty() && position.getNewOptions().isEmpty()) {
+            if (position.getNewTariff() == null
+                    && position.getDeactivatedOptions().isEmpty()
+                    && position.getNewOptions().isEmpty()
+                    && position.getDependingOptions().isEmpty()
+                    && position.getUnsupportedOptions().isEmpty()) {
                 it.remove();
             }
         }

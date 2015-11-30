@@ -222,6 +222,7 @@ public class CartServlet extends HttpServlet {
             CartContractForm cartContractForm = cartForm.getCartContractForm(contract);
 
             List<ContractOption> deactivatedOptions = cartContractForm.getDeactivatedOptions();
+            deactivatedOptions.addAll(cartContractForm.getUnsupportedOptions());
             List<ContractOption> newOptions = cartContractForm.getNewOptions();
             ContractTariff newTariff = cartContractForm.getNewTariff();
 
@@ -257,7 +258,9 @@ public class CartServlet extends HttpServlet {
             return (CartForm) session.getAttribute("cartForm");
 
         } else {
-            return new CartForm();
+            CartForm cartForm = new CartForm();
+            session.setAttribute("cartForm", cartForm);
+            return cartForm;
         }
     }
 }

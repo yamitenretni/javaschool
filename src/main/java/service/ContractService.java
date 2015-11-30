@@ -4,30 +4,34 @@ import dao.BaseDAO;
 import dao.BaseDAOImpl;
 import dao.TransactionManager;
 import domain.*;
+import form.CartContractForm;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Implements main methods for working with clients in database.
  */
 public class ContractService {
     /**
-     * Get entity manager from TransactionManager
+     * Get entity manager from TransactionManager.
      */
     private EntityManager entityManager = TransactionManager.getInstance().getEntityManager();
     /**
-     * Get transaction from entity manager
+     * Get transaction from entity manager.
      */
     private EntityTransaction transaction = entityManager.getTransaction();
 
     /**
-     * Create DAO for clients
+     * Create DAO for clients.
      */
     private BaseDAO<Contract> contractDao = new BaseDAOImpl<>();
+
+    /**
+     * Get service for tariffs.
+     */
+    private static final ContractTariffService TARIFF_SVC = new ContractTariffService();
 
     /**
      * Get contract by id from database
@@ -167,15 +171,110 @@ public class ContractService {
     }
 
     /**
-     * Get list of the options which could be added to the contract
+     * Get list of available tariffs for the contract and current cart position.
      *
-     * @param contract given contract
+     * @param contract     given contract
+     * @param cartContract current cart position
+     * @return list of tariffs
+     */
+    public final List<ContractTariff> getAvailableTariffs(final Contract contract, final CartContractForm cartContract) {
+        List<ContractTariff> resultList = new ArrayList<>();
+        resultList.addAll(TARIFF_SVC.getActiveTariffs());
+        resultList.remove(contract.getTariff());
+        if (cartContract != null && cartContract.getNewTariff() != null) {
+            resultList.remove(cartContract.getNewTariff());
+        }
+        return resultList;
+    }
+
+    /**
+     * Get list of the options which could be added to the contract with given cart position.
+     *
+     * @param contract     given contract
+     * @param cartContract current cart position
      * @return list of options
      */
-    public final List<ContractOption> getAvailableOptions(final Contract contract) {
-        List<ContractOption> options = new ArrayList<>();
-        options.addAll(contract.getTariff().getAvailableOptions());
-        options.removeAll(contract.getActivatedOptions());
-        return options;
+    public final List<ContractOption> getAvailableOptions(final Contract contract, final CartContractForm cartContract) {
+        List<ContractOption> availableOptions = new ArrayList<>();
+        List<ContractOption> activeOptions = new ArrayList<>();
+
+        if (cartContract != null && cartContract.getNewTariff() != null) {
+            availableOptions.addAll(cartContract.getNewTariff().getAvailableOptions());
+        }
+        else {
+            availableOptions.addAll(contract.getTariff().getAvailableOptions());
+        }
+
+        if (cartContract != null) {
+            activeOptions.addAll(cartContract.getFutureOptionList());
+        }
+        else {
+            activeOptions.addAll(contract.getActivatedOptions());
+        }
+
+        availableOptions.removeAll(getIncompatibleOptions(contract, cartContract).keySet());
+//        for (ContractOption option : activeOptions) {
+//            availableOptions.removeAll(option.getIncompatibleOptions());
+//        }
+        availableOptions.removeAll(activeOptions);
+        availableOptions.removeAll(contract.getActivatedOptions());
+
+        return availableOptions;
+    }
+
+    /**
+     * Get list of options, which disabled for given contracts with current cart position.
+     *
+     * @param contract     given contract object
+     * @param cartContract current cart position
+     * @return map, where key is disable option and value is the list of obstructive options
+     */
+    public final Map<ContractOption, List<ContractOption>> getIncompatibleOptions(final Contract contract, final CartContractForm cartContract) {
+        Map<ContractOption, List<ContractOption>> resultMap = new HashMap<>();
+        List<ContractOption> availableOptions = new ArrayList<>();
+        List<ContractOption> activeOptions = new ArrayList<>();
+        List<ContractOption> incompatibleOptions = new ArrayList<>();
+
+        if (cartContract != null && cartContract.getNewTariff() != null) {
+            availableOptions.addAll(cartContract.getNewTariff().getAvailableOptions());
+        }
+        else {
+            availableOptions.addAll(contract.getTariff().getAvailableOptions());
+        }
+
+        if (cartContract != null) {
+            activeOptions.addAll(cartContract.getFutureOptionList());
+
+        }
+        else {
+            activeOptions.addAll(contract.getActivatedOptions());
+        }
+
+        for (ContractOption activeOption : activeOptions) {
+            incompatibleOptions.addAll(activeOption.getIncompatibleOptions());
+        }
+
+        incompatibleOptions.retainAll(availableOptions);
+        incompatibleOptions.removeAll(contract.getActivatedOptions());
+
+        for (ContractOption incOption : incompatibleOptions) {
+            List<ContractOption> obstructiveOptions = new ArrayList<>(incOption.getIncompatibleOptions());
+            obstructiveOptions.retainAll(activeOptions);
+            resultMap.put(incOption, obstructiveOptions);
+        }
+
+//        availableOptions.removeAll(activeOptions);
+//
+//        for (ContractOption incOption : availableOptions) {
+//            List<ContractOption> obstructiveOptions = new ArrayList<>();
+//            for (ContractOption option : activeOptions) {
+//                if (incOption.getIncompatibleOptions().contains(option)) {
+//                    obstructiveOptions.add(option);
+//                }
+//            }
+//            resultMap.put(incOption, obstructiveOptions);
+//        }
+
+        return resultMap;
     }
 }

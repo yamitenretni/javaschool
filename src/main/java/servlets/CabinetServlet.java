@@ -1,9 +1,8 @@
 package servlets;
 
-import domain.Client;
-import domain.Contract;
-import domain.ContractOption;
-import domain.User;
+import domain.*;
+import form.CartContractForm;
+import form.CartForm;
 import service.ClientService;
 import service.ContractService;
 import service.ContractTariffService;
@@ -76,11 +75,22 @@ public class CabinetServlet extends HttpServlet {
         else if (contractPageMatcher.matches()) {
             long contractId = Long.parseLong(contractPageMatcher.group(1));
             Contract contract = CONTRACT_SVC.getById(contractId);
-            List<ContractOption> availableOptions = CONTRACT_SVC.getAvailableOptions(contract);
+
+            CartForm cartForm;
+            CartContractForm cartContractForm = null;
+
+            if (session.getAttribute("cartForm") != null) {
+                cartForm = (CartForm) session.getAttribute("cartForm");
+                cartContractForm = cartForm.getCartContractForm(contract);
+            }
+
+            List<ContractTariff> availableTariffs = CONTRACT_SVC.getAvailableTariffs(contract, cartContractForm);
+            List<ContractOption> availableOptions = CONTRACT_SVC.getAvailableOptions(contract, cartContractForm);
+
 
             if (contract.getClient() == currentClient) {
                 req.setAttribute("contract", contract);
-                req.setAttribute("tariffs", TARIFF_SVC.getActiveTariffs());
+                req.setAttribute("tariffs", availableTariffs);
                 req.setAttribute("availableOptions", availableOptions);
                 req.getRequestDispatcher("/jsp/read-contract.jsp").forward(req, resp);
             }

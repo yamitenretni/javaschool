@@ -11,34 +11,41 @@
 <body>
 <div class="page">
     <%@include file="/jsp/nav-bar.jsp" %>
+    <p><label>Owner:</label> ${contract.client.firstName} ${contract.client.lastName}</p>
+
     <p>
         <label>Phone number:</label> +${contract.number}
         <c:if test="${contract.blocked}">
             <code>
                 Blocked since
-                <fmt:formatDate pattern="dd.MM.yyyy" value="${contract.blockingDate}" />
+                <fmt:formatDate pattern="dd.MM.yyyy" value="${contract.blockingDate}"/>
             </code>
         </c:if></p>
 
-    <p><label>Tariff:</label> ${contract.tariff.name}</p>
+    <p><label>Current tariff:</label> ${contract.tariff.name}: ${contract.tariff.monthlyCost} every month</p>
 
     <c:if test="${not contract.blocked}">
+
         <form action="/cart/${contract.id}/newtariff" method="post" accept-charset="utf-8">
-            <div class="form-group">
-                <label for="newTariff">You can change tariff</label>
-                <select name="newTariff" id="newTariff" class="form-control">
-                    <option>-- Select new tariff --</option>
-                    <c:forEach items="${tariffs}" var="tariff">
-                        <option value="${tariff.id}">${tariff.name}: ${tariff.monthlyCost}</option>
-                    </c:forEach>
-                </select>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="input-group">
+                        <select name="newTariff" id="newTariff" class="form-control" required>
+                            <option value="">-- Here you can select new tariff --</option>
+                            <c:forEach items="${tariffs}" var="tariff">
+                                <option value="${tariff.id}">${tariff.name}: ${tariff.monthlyCost} every month</option>
+                            </c:forEach>
+                        </select>
+      <span class="input-group-btn">
+        <button type="submit" class="btn" name="requestType" value="submit">Change!</button>
+      </span>
+                    </div>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary" name="requestType" value="submit">Change it</button>
 
         </form>
     </c:if>
-
-    <p><label>Owner:</label> ${contract.client.firstName} ${contract.client.lastName}</p>
 
     <c:if test="${not empty contract.activatedOptions}">
         <table class="table">
@@ -68,9 +75,14 @@
         </table>
     </c:if>
 
-    <c:if test="${not empty availableOptions and not contract.blocked}">
+    <c:if test="${empty availableOptions and empty incompatibleOptions}">
+        <p>All available options for selected tariff are activated yet.</p>
+        <p></p>
+    </c:if>
+
+    <c:if test="${not contract.blocked and (not empty availableOptions or not empty incompatibleOptions)}">
         <table class="table">
-            <caption>You can also activate this options:</caption>
+            <caption>Another options for selected tariff:</caption>
             <thead>
             <tr>
                 <th>Name</th>
@@ -80,14 +92,27 @@
             </tr>
             </thead>
             <tbody>
-            <c:forEach items="${availableOptions}" var="option">
-                <tr>
-                    <td>${option.name}</td>
-                    <td>${option.connectionCost}</td>
-                    <td>${option.monthlyCost}</td>
-                    <td><a href="/cart/${contract.id}/add/${option.id}" class="btn">Activate</a></td>
+                <c:forEach items="${availableOptions}" var="option">
+                    <tr>
+                        <td>${option.name}</td>
+                        <td>${option.connectionCost}</td>
+                        <td>${option.monthlyCost}</td>
+                        <td><a href="/cart/${contract.id}/add/${option.id}" class="btn">Activate</a></td>
+                    </tr>
+                </c:forEach>
+            <c:forEach items="${incompatibleOptions}" var="entry">
+                <tr style="color: #ccc;">
+                    <td>${entry.key.name}
+                    </td>
+                    <td>${entry.key.connectionCost}</td>
+                    <td>${entry.key.monthlyCost}</td>
+                    <td>Incompatible with: <br/>
+                        <c:forEach items="${entry.value}" var="incOption">
+                            ${incOption.name} <br/>
+                        </c:forEach></td>
                 </tr>
             </c:forEach>
+
             </tbody>
         </table>
     </c:if>
