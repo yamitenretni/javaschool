@@ -1,5 +1,6 @@
 package servlets;
 
+import domain.Contract;
 import domain.ContractOption;
 import service.ContractOptionService;
 import service.ContractTariffService;
@@ -126,6 +127,8 @@ public class ProductsSettingsServlet extends HttpServlet {
          * Get option add form.
          */
         if (optionAddMatcher.matches()) {
+            req.setAttribute("options", optionSvc.getActiveOptions());
+
             req.getRequestDispatcher("/jsp/add-option.jsp").forward(req, resp);
         }
 
@@ -134,8 +137,12 @@ public class ProductsSettingsServlet extends HttpServlet {
          */
         if (optionEditMatcher.matches()) {
             long optionId = Long.parseLong(optionEditMatcher.group(1));
+            ContractOption editedOption = optionSvc.getById(optionId);
+            List<ContractOption> options = new ArrayList<>(optionSvc.getActiveOptions());
+            options.remove(editedOption);
 
-            req.setAttribute("editedOption", optionSvc.getById(optionId));
+            req.setAttribute("editedOption", editedOption);
+            req.setAttribute("options", options);
 
             req.getRequestDispatcher("/jsp/edit-option.jsp").forward(req, resp);
         }
@@ -174,7 +181,6 @@ public class ProductsSettingsServlet extends HttpServlet {
     }
 
 
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
@@ -186,7 +192,7 @@ public class ProductsSettingsServlet extends HttpServlet {
 
         Matcher optionAddMatcher = optionAddPattern.matcher(actionPath);
         Matcher optionEditMatcher = optionEditPattern.matcher(actionPath);
-        
+
         // TODO: 23.11.2015 think about normal routing
         /**
          * Save tariff.
@@ -205,7 +211,7 @@ public class ProductsSettingsServlet extends HttpServlet {
 
             if (selectedOptions != null) {
                 for (String optionId : selectedOptions) {
-                    tariffOptions.add(optionSvc.getById(Integer.parseInt(optionId)));
+                    tariffOptions.add(optionSvc.getById(Long.parseLong(optionId)));
                 }
             }
 
@@ -217,8 +223,7 @@ public class ProductsSettingsServlet extends HttpServlet {
                 tariffSvc.upsertTariff(tariffId, tariffName, monthlyCost, tariffOptions);
 
                 resp.sendRedirect("/tariffs");
-            }
-            else {
+            } else {
                 req.setAttribute("errors", validErrs);
                 req.setAttribute("name", tariffName);
                 req.setAttribute("monthlyCost", monthlyCost);
@@ -236,26 +241,66 @@ public class ProductsSettingsServlet extends HttpServlet {
             if (optionEditMatcher.matches()) {
                 optionId = Long.parseLong(optionEditMatcher.group(1));
             }
-
+            // Save all parameters
             String optionName = req.getParameter("option_name");
-            // TODO: 28.11.2015 set 0 if param is null
-            Double connectionCost = Double.parseDouble(req.getParameter("connection_cost"));
-            Double monthlyCost = Double.parseDouble(req.getParameter("monthly_cost"));
+            Double connectionCost = 0D;
+            Double monthlyCost = 0D;
+            List<ContractOption> incompatibleList = new ArrayList<>();
+            List<ContractOption> mandatoryList = new ArrayList<>();
 
+            String[] incompatibleOptions = req.getParameterValues("incompatible_options[]");
+            String[] mandatoryOptions = req.getParameterValues("mandatory_options[]");
+
+
+            if (req.getParameter("connection_cost") != "") {
+                connectionCost = Double.parseDouble(req.getParameter("connection_cost"));
+            }
+            if (req.getParameter("monthly_cost") != "") {
+                monthlyCost = Double.parseDouble(req.getParameter("monthly_cost"));
+            }
+
+            // TODO: 30.11.2015 add to service method for getting List of options from array
+            if (incompatibleOptions != null) {
+                for (String incOptionId : incompatibleOptions) {
+                    incompatibleList.add(optionSvc.getById(Long.parseLong(incOptionId)));
+                }
+            }
+            if (mandatoryOptions != null) {
+                for (String manOptionId : mandatoryOptions) {
+                    mandatoryList.add(optionSvc.getById(Long.parseLong(manOptionId)));
+                }
+            }
+
+            // Verification
             if (!optionSvc.hasUniqueName(optionId, optionName)) {
                 validErrs.add("notUniqueName");
             }
 
             if (validErrs.isEmpty()) {
-                optionSvc.upsertOption(optionId, optionName, connectionCost, monthlyCost);
+                ContractOption option;
+                if (optionId != 0L) {
+                    option = optionSvc.getById(optionId);
+                }
+                else {
+                    option = new ContractOption();
+                }
+
+                option.setName(optionName);
+                option.setConnectionCost(connectionCost);
+                option.setMonthlyCost(monthlyCost);
+                option.setMandatoryOptions(mandatoryList);
+
+                option = optionSvc.upsertOption(option);
+                optionSvc.updateIncompatibleList(option, incompatibleList);
 
                 resp.sendRedirect("/options");
-            }
-            else {
+            } else {
                 req.setAttribute("errors", validErrs);
                 req.setAttribute("name", optionName);
                 req.setAttribute("connectionCost", connectionCost);
                 req.setAttribute("monthlyCost", monthlyCost);
+                req.setAttribute("incompatibleOptions", incompatibleList);
+                req.setAttribute("mandatoryOptions", mandatoryList);
                 doGet(req, resp);
             }
         }

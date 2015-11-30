@@ -29,6 +29,42 @@
                    placeholder="Monthly cost" value="${editedOption.monthlyCost}">
         </div>
 
+        <p>Select all incompatible options:</p>
+        <c:forEach items="${options}" var="option">
+            <c:set var="checked" value=""/>
+            <c:forEach var="item" items="${editedOption.incompatibleOptions}">
+                <c:if test="${item.id eq option.id}">
+                    <c:set var="checked" value="checked"/>
+                </c:if>
+            </c:forEach>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="incompatible_options[]"
+                           value="${option.id}" ${checked}> ${option.name} ${option.connectionCost} once
+                    + ${option.monthlyCost} every
+                    month
+                </label>
+            </div>
+        </c:forEach>
+
+        <p>Select all mandatory options:</p>
+        <c:forEach items="${options}" var="option">
+            <c:set var="checked" value=""/>
+            <c:forEach var="item" items="${editedOption.mandatoryOptions}">
+                <c:if test="${item.id eq option.id}">
+                    <c:set var="checked" value="checked"/>
+                </c:if>
+            </c:forEach>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="mandatory_options[]"
+                           value="${option.id}" ${checked}> ${option.name} ${option.connectionCost} once
+                    + ${option.monthlyCost} every
+                    month
+                </label>
+            </div>
+        </c:forEach>
+
         <button type="submit" class="btn btn-primary">Save option</button>
     </form>
 </div>

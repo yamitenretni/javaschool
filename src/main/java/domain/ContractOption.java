@@ -1,6 +1,8 @@
 package domain;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "options")
@@ -30,13 +32,29 @@ public class ContractOption {
     @Column(name = "deleted")
     private boolean isDeleted = false;
 
+    @ManyToMany
+    @JoinTable(name = "incompatible_options",
+            joinColumns = {@JoinColumn(name = "option_id")},
+            inverseJoinColumns = {@JoinColumn(name = "incomp_option_id")})
+    private List<ContractOption> incompatibleOptions;
+
+    @ManyToMany
+    @JoinTable(name = "mandatory_options",
+            joinColumns = {@JoinColumn(name = "option_id")},
+            inverseJoinColumns = {@JoinColumn(name = "mand_option_id")})
+    private List<ContractOption> mandatoryOptions;
+
     public ContractOption() {
+        incompatibleOptions = new ArrayList<>();
+        mandatoryOptions = new ArrayList<>();
     }
 
     public ContractOption(final String newName, final double newConnectionCost, final double newMonthlyCost) {
         name = newName;
         connectionCost = newConnectionCost;
         monthlyCost = newMonthlyCost;
+        incompatibleOptions = new ArrayList<>();
+        mandatoryOptions = new ArrayList<>();
     }
 
     public long getId() {
@@ -71,7 +89,23 @@ public class ContractOption {
         return isDeleted;
     }
 
-    public void setDeleted(boolean deleted) {
+    public void setDeleted(final boolean deleted) {
         isDeleted = deleted;
+    }
+
+    public final List<ContractOption> getIncompatibleOptions() {
+        return incompatibleOptions;
+    }
+
+//    public final void setIncompatibleOptions(final List<ContractOption> options) {
+//        incompatibleOptions = options;
+//    }
+
+    public final List<ContractOption> getMandatoryOptions() {
+        return mandatoryOptions;
+    }
+
+    public final void setMandatoryOptions(final List<ContractOption> options) {
+        mandatoryOptions = options;
     }
 }
