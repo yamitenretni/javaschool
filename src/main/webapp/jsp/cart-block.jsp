@@ -83,6 +83,7 @@
                             </tbody>
                         </table>
                         <a href="/cart/${cartPosition.contract.id}/save" class="btn btn-success">Save this number</a>
+                        <a href="/cart/${cartPosition.contract.id}/clear" class="btn btn-danger">Clear cart</a>
 
                     </div>
                 </c:forEach>

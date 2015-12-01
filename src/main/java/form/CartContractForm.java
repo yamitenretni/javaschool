@@ -184,7 +184,7 @@ public class CartContractForm {
     }
 
     /**
-     * Delete deactivated option from the cart.
+     * Delete new option from the cart.
      *
      * @param option deleting option
      */
@@ -248,6 +248,13 @@ public class CartContractForm {
         options.removeAll(tariff.getAvailableOptions());
         unsupportedOptions = options;
 
+        //delete unsupported options from dependings
+        for (ContractOption unsupportedOption : unsupportedOptions) {
+            if (dependingOptions.contains(unsupportedOption)) {
+                dependingOptions.remove(unsupportedOption);
+            }
+        }
+
         //delete new unsupported options from the cart
         List<ContractOption> deletingNewOptions = new ArrayList<>();
         for (ContractOption newOption : newOptions) {
@@ -270,7 +277,26 @@ public class CartContractForm {
      */
     public final void deleteNewTariff() {
         newTariff = null;
+
+        // add depend options from unsupported
+//        List<ContractOption> options = new ArrayList<>(deactivatedOptions);
+//        options.addAll(contract.getActivatedOptions());
+        for (ContractOption unsupportedOption : unsupportedOptions) {
+            Set<ContractOption> mandatoryOptions = unsupportedOption.getMandatoryOptions();
+            boolean isDepend = true;
+            for (ContractOption mandatoryOption : mandatoryOptions) {
+                if (getFutureOptionList().contains(mandatoryOption)) {
+                    isDepend = false;
+                    break;
+                }
+            }
+            if (isDepend && !mandatoryOptions.isEmpty() && !dependingOptions.contains(unsupportedOption)) {
+                dependingOptions.add(unsupportedOption);
+            }
+        }
+
         unsupportedOptions = new ArrayList<>();
+
     }
 
     /**
@@ -283,8 +309,21 @@ public class CartContractForm {
         options.addAll(newOptions);
         options.removeAll(unsupportedOptions);
         options.removeAll(deactivatedOptions);
+        options.removeAll(dependingOptions);
 
         return options;
+    }
+
+    /**
+     * Clear cart for this contract
+     */
+    public final void clearAll() {
+        newTariff = null;
+        deactivatedOptions = new ArrayList<>();
+        newOptions = new ArrayList<>();
+        unsupportedOptions = new ArrayList<>();
+        dependingOptions = new ArrayList<>();
+
     }
 
     /**

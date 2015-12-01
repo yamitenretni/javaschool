@@ -82,6 +82,7 @@ public class CabinetServlet extends HttpServlet {
             if (session.getAttribute("cartForm") != null) {
                 cartForm = (CartForm) session.getAttribute("cartForm");
                 cartContractForm = cartForm.getCartContractForm(contract);
+                req.setAttribute("currentCartPosition", cartContractForm);
             }
 
             List<ContractTariff> availableTariffs = CONTRACT_SVC.getAvailableTariffs(contract, cartContractForm);
@@ -92,6 +93,8 @@ public class CabinetServlet extends HttpServlet {
                 req.setAttribute("contract", contract);
                 req.setAttribute("tariffs", availableTariffs);
                 req.setAttribute("availableOptions", availableOptions);
+                req.setAttribute("incompatibleOptions", CONTRACT_SVC.getIncompatibleOptions(contract, cartContractForm));
+                req.setAttribute("dependOptions", CONTRACT_SVC.getDependOptions(contract, cartContractForm));
                 req.getRequestDispatcher("/jsp/read-contract.jsp").forward(req, resp);
             }
             else {

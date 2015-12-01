@@ -174,6 +174,7 @@ public class ClientManagementServlet extends HttpServlet {
             if (session.getAttribute("cartForm") != null) {
                 cartForm = (CartForm) session.getAttribute("cartForm");
                 cartContractForm = cartForm.getCartContractForm(contract);
+                req.setAttribute("currentCartPosition", cartContractForm);
             }
 
             List<ContractTariff> availableTariffs = contractSvc.getAvailableTariffs(contract, cartContractForm);
@@ -185,6 +186,7 @@ public class ClientManagementServlet extends HttpServlet {
             req.setAttribute("availableOptions", availableOptions);
             req.setAttribute("tariffs", availableTariffs);
             req.setAttribute("incompatibleOptions", contractSvc.getIncompatibleOptions(contract, cartContractForm));
+            req.setAttribute("dependOptions", contractSvc.getDependOptions(contract, cartContractForm));
             req.getRequestDispatcher("/jsp/read-contract.jsp").forward(req, resp);
         }
         /**

@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="C" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -65,9 +66,15 @@
                     <td>${option.connectionCost}</td>
                     <td>${option.monthlyCost}</td>
                     <td>
-                        <c:if test="${not contract.blocked}">
-                            <a href="/cart/${contract.id}/deactivate/${option.id}" class="btn">Deactivate</a>
-                        </c:if>
+                        <c:choose>
+                            <c:when test="${currentCartPosition.deactivatedOptions.contains(option) or currentCartPosition.dependingOptions.contains(option) or currentCartPosition.unsupportedOptions.contains(option)}">
+                                Deactivated
+                            </c:when>
+
+                            <c:when test="${not contract.blocked}">
+                                <a href="/cart/${contract.id}/deactivate/${option.id}" class="btn">Deactivate</a>
+                            </c:when>
+                        </c:choose>
                     </td>
                 </tr>
             </c:forEach>
@@ -112,6 +119,18 @@
                         </c:forEach></td>
                 </tr>
             </c:forEach>
+                <c:forEach items="${dependOptions}" var="entry">
+                    <tr style="color: #ccc;">
+                        <td>${entry.key.name}
+                        </td>
+                        <td>${entry.key.connectionCost}</td>
+                        <td>${entry.key.monthlyCost}</td>
+                        <td>Depend on: <br/>
+                            <c:forEach items="${entry.value}" var="incOption">
+                                ${incOption.name} <br/>
+                            </c:forEach></td>
+                    </tr>
+                </c:forEach>
 
             </tbody>
         </table>

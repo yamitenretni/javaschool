@@ -51,6 +51,10 @@ public class CartServlet extends HttpServlet {
      * URL regexp for saving changes.
      */
     private static final Pattern SAVE_CHANGES = Pattern.compile("^/cart/(\\d+)/save$");
+    /**
+     * URL regexp for saving changes.
+     */
+    private static final Pattern CLEAR_CART = Pattern.compile("^/cart/(\\d+)/clear$");
 
     /**
      * Get service for tariffs.
@@ -105,6 +109,7 @@ public class CartServlet extends HttpServlet {
         Matcher cancelAddOptionMatcher = CANCEL_ADD_OPTION.matcher(actionPath);
         Matcher cancelEditTariff = CANCEL_EDIT_TARIFF.matcher(actionPath);
         Matcher saveChanges = SAVE_CHANGES.matcher(actionPath);
+        Matcher clearCart = CLEAR_CART.matcher(actionPath);
 
         /**
          * Deactivate contract option.
@@ -132,7 +137,7 @@ public class CartServlet extends HttpServlet {
         /**
          * Add contract option.
          */
-        if (addOptionMatcher.matches()) {
+        else if (addOptionMatcher.matches()) {
             CartForm cartForm;
             CartContractForm cartContractForm;
 
@@ -155,7 +160,7 @@ public class CartServlet extends HttpServlet {
         /**
          * Delete deactivated option from the cart.
          */
-        if (cancelDeactivateOptionMatcher.matches()) {
+        else if (cancelDeactivateOptionMatcher.matches()) {
             long contractId = Long.parseLong(cancelDeactivateOptionMatcher.group(1));
             long optionId = Long.parseLong(cancelDeactivateOptionMatcher.group(2));
             Contract contract = CONTRACT_SVC.getById(contractId);
@@ -175,7 +180,7 @@ public class CartServlet extends HttpServlet {
         /**
          * Delete added option from the cart.
          */
-        if (cancelAddOptionMatcher.matches()) {
+        else if (cancelAddOptionMatcher.matches()) {
             long contractId = Long.parseLong(cancelAddOptionMatcher.group(1));
             long optionId = Long.parseLong(cancelAddOptionMatcher.group(2));
             Contract contract = CONTRACT_SVC.getById(contractId);
@@ -195,7 +200,7 @@ public class CartServlet extends HttpServlet {
         /**
          * Cancel tariff edit.
          */
-        if (cancelEditTariff.matches()) {
+        else if (cancelEditTariff.matches()) {
             long contractId = Long.parseLong(cancelEditTariff.group(1));
             Contract contract = CONTRACT_SVC.getById(contractId);
 
@@ -213,7 +218,7 @@ public class CartServlet extends HttpServlet {
         /**
          * Save changes of contract.
          */
-        if (saveChanges.matches()) {
+        else if (saveChanges.matches()) {
             long contractId = Long.parseLong(saveChanges.group(1));
             Contract contract = CONTRACT_SVC.getById(contractId);
 
@@ -241,6 +246,18 @@ public class CartServlet extends HttpServlet {
             CONTRACT_SVC.upsertContract(contract);
 
             cartForm.deleteCartContractForm(cartContractForm);
+
+            resp.sendRedirect(refPath);
+        }
+        else if (clearCart.matches()) {
+            long contractId = Long.parseLong(clearCart.group(1));
+            Contract contract = CONTRACT_SVC.getById(contractId);
+
+            HttpSession session = req.getSession();
+            CartForm cartForm = getSessionCartForm(session);
+            CartContractForm cartContractForm = cartForm.getCartContractForm(contract);
+
+            cartContractForm.clearAll();
 
             resp.sendRedirect(refPath);
         }

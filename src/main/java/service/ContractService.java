@@ -195,24 +195,11 @@ public class ContractService {
      * @return list of options
      */
     public final List<ContractOption> getAvailableOptions(final Contract contract, final CartContractForm cartContract) {
-        List<ContractOption> availableOptions = new ArrayList<>();
-        List<ContractOption> activeOptions = new ArrayList<>();
-
-        if (cartContract != null && cartContract.getNewTariff() != null) {
-            availableOptions.addAll(cartContract.getNewTariff().getAvailableOptions());
-        }
-        else {
-            availableOptions.addAll(contract.getTariff().getAvailableOptions());
-        }
-
-        if (cartContract != null) {
-            activeOptions.addAll(cartContract.getFutureOptionList());
-        }
-        else {
-            activeOptions.addAll(contract.getActivatedOptions());
-        }
+        List<ContractOption> availableOptions = getAvailableOptionsForTariff(contract, cartContract);
+        List<ContractOption> activeOptions = getActiveOptionsForContract(contract, cartContract);
 
         availableOptions.removeAll(getIncompatibleOptions(contract, cartContract).keySet());
+        availableOptions.removeAll(getDependOptions(contract, cartContract).keySet());
 //        for (ContractOption option : activeOptions) {
 //            availableOptions.removeAll(option.getIncompatibleOptions());
 //        }
@@ -231,24 +218,9 @@ public class ContractService {
      */
     public final Map<ContractOption, List<ContractOption>> getIncompatibleOptions(final Contract contract, final CartContractForm cartContract) {
         Map<ContractOption, List<ContractOption>> resultMap = new HashMap<>();
-        List<ContractOption> availableOptions = new ArrayList<>();
-        List<ContractOption> activeOptions = new ArrayList<>();
+        List<ContractOption> availableOptions = getAvailableOptionsForTariff(contract, cartContract);
+        List<ContractOption> activeOptions = getActiveOptionsForContract(contract, cartContract);
         List<ContractOption> incompatibleOptions = new ArrayList<>();
-
-        if (cartContract != null && cartContract.getNewTariff() != null) {
-            availableOptions.addAll(cartContract.getNewTariff().getAvailableOptions());
-        }
-        else {
-            availableOptions.addAll(contract.getTariff().getAvailableOptions());
-        }
-
-        if (cartContract != null) {
-            activeOptions.addAll(cartContract.getFutureOptionList());
-
-        }
-        else {
-            activeOptions.addAll(contract.getActivatedOptions());
-        }
 
         for (ContractOption activeOption : activeOptions) {
             incompatibleOptions.addAll(activeOption.getIncompatibleOptions());
@@ -263,18 +235,74 @@ public class ContractService {
             resultMap.put(incOption, obstructiveOptions);
         }
 
-//        availableOptions.removeAll(activeOptions);
-//
-//        for (ContractOption incOption : availableOptions) {
-//            List<ContractOption> obstructiveOptions = new ArrayList<>();
-//            for (ContractOption option : activeOptions) {
-//                if (incOption.getIncompatibleOptions().contains(option)) {
-//                    obstructiveOptions.add(option);
-//                }
-//            }
-//            resultMap.put(incOption, obstructiveOptions);
-//        }
+        return resultMap;
+    }
+
+    /**
+     * Get list of options, which disabled for given contracts with current cart position.
+     *
+     * @param contract     given contract object
+     * @param cartContract current cart position
+     * @return map, where key is disable option and value is the list of mandatory options
+     */
+    public final Map<ContractOption, List<ContractOption>> getDependOptions(final Contract contract, final CartContractForm cartContract) {
+        Map<ContractOption, List<ContractOption>> resultMap = new HashMap<>();
+        List<ContractOption> availableOptions = getAvailableOptionsForTariff(contract, cartContract);
+        List<ContractOption> activeOptions = getActiveOptionsForContract(contract, cartContract);
+        List<ContractOption> dependOptions = new ArrayList<>();
+
+        for (ContractOption availableOption : availableOptions) {
+            boolean isDepend = true;
+            Set<ContractOption> mandatoryOptions = availableOption.getMandatoryOptions();
+            if (mandatoryOptions.size() == 0) {
+                isDepend = false;
+            }
+            else {
+                for (ContractOption mandatoryOption : mandatoryOptions) {
+                    if (activeOptions.contains(mandatoryOption)) {
+                        isDepend = false;
+                        break;
+                    }
+                }
+            }
+            if (isDepend) {
+                dependOptions.add(availableOption);
+            }
+        }
+
+        for (ContractOption depOption : dependOptions) {
+            List<ContractOption> mandatoryOptions = new ArrayList<>(depOption.getMandatoryOptions());
+            mandatoryOptions.retainAll(availableOptions);
+            resultMap.put(depOption, mandatoryOptions);
+        }
 
         return resultMap;
+    }
+
+
+
+    private List<ContractOption> getAvailableOptionsForTariff(final Contract contract, final CartContractForm cartContract) {
+        List<ContractOption> availableOptions = new ArrayList<>();
+        if (cartContract != null && cartContract.getNewTariff() != null) {
+            availableOptions.addAll(cartContract.getNewTariff().getAvailableOptions());
+        }
+        else {
+            availableOptions.addAll(contract.getTariff().getAvailableOptions());
+        }
+
+        return availableOptions;
+    }
+
+    private List<ContractOption> getActiveOptionsForContract(final Contract contract, final CartContractForm cartContract) {
+        List<ContractOption> activeOptions = new ArrayList<>();
+        if (cartContract != null) {
+            activeOptions.addAll(cartContract.getFutureOptionList());
+
+        }
+        else {
+            activeOptions.addAll(contract.getActivatedOptions());
+        }
+
+        return activeOptions;
     }
 }
