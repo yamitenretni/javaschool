@@ -1,4 +1,3 @@
-<c:out value="${cartForm.cartContractForms}"></c:out>
 <c:if test="${not empty sessionScope.cartForm.cartContractForms}">
     <div class="panel panel-default">
         <div class="panel-heading">

@@ -9,7 +9,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Implements main methods for working with options in database.
@@ -81,7 +83,7 @@ public class ContractOptionService {
      * @param connectionCost option's connection price
      * @param monthlyCost    option's regular price
      */
-    public ContractOption upsertOption(final long id, final String name, final double connectionCost, final double monthlyCost) {
+    public final ContractOption upsertOption(final long id, final String name, final double connectionCost, final double monthlyCost) {
         ContractOption option;
         if (id != 0L) {
             option = optionDao.getById(ContractOption.class, id);
@@ -106,7 +108,7 @@ public class ContractOptionService {
      * @param name checking name
      * @return true if option doesn't violate unique constraints
      */
-    public boolean hasUniqueName(final long id, final String name) {
+    public final boolean hasUniqueName(final long id, final String name) {
         List<ContractOption> resultList = entityManager
                 .createNamedQuery(ContractOption.HAS_UNIQUE_NAME, ContractOption.class)
                 .setParameter("id", id)
@@ -151,14 +153,14 @@ public class ContractOptionService {
      * @param secondOption second option in the pair
      */
     private void addIncompatibleOptions(final ContractOption firstOption, final ContractOption secondOption) {
-        List<ContractOption> firstIncompatibleList = firstOption.getIncompatibleOptions();
-        List<ContractOption> secondIncompatibleList = secondOption.getIncompatibleOptions();
+        Set<ContractOption> firstIncompatibleOptions = firstOption.getIncompatibleOptions();
+        Set<ContractOption> secondIncompatibleOptions = secondOption.getIncompatibleOptions();
 
-        if (!firstIncompatibleList.contains(secondOption)) {
-            firstIncompatibleList.add(secondOption);
+        if (!firstIncompatibleOptions.contains(secondOption)) {
+            firstIncompatibleOptions.add(secondOption);
         }
-        if (!secondIncompatibleList.contains(firstOption)) {
-            secondIncompatibleList.add(firstOption);
+        if (!secondIncompatibleOptions.contains(firstOption)) {
+            secondIncompatibleOptions.add(firstOption);
         }
 
         transaction.begin();
@@ -174,15 +176,11 @@ public class ContractOptionService {
      * @param secondOption second option in the pair
      */
     private void deleteIncompatibleOptions(final ContractOption firstOption, final ContractOption secondOption) {
-        List<ContractOption> firstIncompatibleList = firstOption.getIncompatibleOptions();
-        List<ContractOption> secondIncompatibleList = secondOption.getIncompatibleOptions();
+        Set<ContractOption> firstIncompatibleOptions = firstOption.getIncompatibleOptions();
+        Set<ContractOption> secondIncompatibleOptions = secondOption.getIncompatibleOptions();
 
-        if (firstIncompatibleList.contains(secondOption)) {
-            firstIncompatibleList.remove(secondOption);
-        }
-        if (secondIncompatibleList.contains(firstOption)) {
-            secondIncompatibleList.remove(firstOption);
-        }
+        firstIncompatibleOptions.remove(secondOption);
+        secondIncompatibleOptions.remove(firstOption);
 
         transaction.begin();
         optionDao.merge(firstOption);
@@ -197,22 +195,73 @@ public class ContractOptionService {
      * @param newIncOptions new list of options
      */
     public final void updateIncompatibleList(final ContractOption option, final List<ContractOption> newIncOptions) {
-        List<ContractOption> currentIncOptions = option.getIncompatibleOptions();
+        Set<ContractOption> currentIncOptions = option.getIncompatibleOptions();
 
-        List<ContractOption> removingOptions = new ArrayList<>(currentIncOptions);
+        Set<ContractOption> removingOptions = new HashSet<>(currentIncOptions);
         removingOptions.removeAll(newIncOptions);
 
-        List<ContractOption> newOptions = new ArrayList<>(newIncOptions);
+        Set<ContractOption> newOptions = new HashSet<>(newIncOptions);
         newOptions.removeAll(currentIncOptions);
 
         for (ContractOption removingOption : removingOptions) {
             deleteIncompatibleOptions(option, removingOption);
         }
-        for (ContractOption newOption : newIncOptions) {
+        for (ContractOption newOption : newOptions) {
             addIncompatibleOptions(option, newOption);
         }
+    }
 
+    /**
+     * Add pair of mandatory-depend options in the database and needed objects.
+     *
+     * @param dependOption    depend option
+     * @param mandatoryOption mandatory option
+     */
+    private void addMandatoryOption(final ContractOption dependOption, final ContractOption mandatoryOption) {
+        dependOption.getMandatoryOptions().add(mandatoryOption);
+        mandatoryOption.getDependOptions().add(dependOption);
 
+        transaction.begin();
+        optionDao.merge(dependOption);
+        transaction.commit();
+    }
+
+    /**
+     * Remove pair of mandatory-depend options in the database and needed objects.
+     *
+     * @param dependOption    depend option
+     * @param mandatoryOption mandatory option
+     */
+    private void deleteMandatoryOption(final ContractOption dependOption, final ContractOption mandatoryOption) {
+        dependOption.getMandatoryOptions().remove(mandatoryOption);
+        mandatoryOption.getDependOptions().remove(dependOption);
+
+        transaction.begin();
+        optionDao.merge(dependOption);
+        transaction.commit();
+    }
+
+    /**
+     * Update lists of mandatory and depend options for all needed options.
+     *
+     * @param option         updating option
+     * @param newMandOptions new list of options
+     */
+    public final void updateMandatoryList(final ContractOption option, final List<ContractOption> newMandOptions) {
+        Set<ContractOption> currentMandOptions = option.getMandatoryOptions();
+
+        Set<ContractOption> removingOptions = new HashSet<>(currentMandOptions);
+        removingOptions.removeAll(newMandOptions);
+
+        Set<ContractOption> newOptions = new HashSet<>(newMandOptions);
+        newOptions.removeAll(currentMandOptions);
+
+        for (ContractOption removingOption : removingOptions) {
+            deleteMandatoryOption(option, removingOption);
+        }
+        for (ContractOption newOption : newOptions) {
+            addMandatoryOption(option, newOption);
+        }
     }
 
 }

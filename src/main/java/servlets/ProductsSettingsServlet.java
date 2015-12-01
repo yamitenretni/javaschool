@@ -288,10 +288,10 @@ public class ProductsSettingsServlet extends HttpServlet {
                 option.setName(optionName);
                 option.setConnectionCost(connectionCost);
                 option.setMonthlyCost(monthlyCost);
-                option.setMandatoryOptions(mandatoryList);
 
                 option = optionSvc.upsertOption(option);
                 optionSvc.updateIncompatibleList(option, incompatibleList);
+                optionSvc.updateMandatoryList(option, mandatoryList);
 
                 resp.sendRedirect("/options");
             } else {

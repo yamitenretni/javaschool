@@ -64,6 +64,14 @@
                 </label>
             </div>
         </c:forEach>
+        <p>List of depend option:</p>
+        <ul>
+            <c:forEach var="option" items="${editedOption.dependOptions}">
+                <li>${option.name} ${option.connectionCost} once
+                    + ${option.monthlyCost} every
+                    month</li>
+            </c:forEach>
+        </ul>
 
         <button type="submit" class="btn btn-primary">Save option</button>
     </form>

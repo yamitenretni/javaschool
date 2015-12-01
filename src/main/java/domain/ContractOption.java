@@ -2,7 +2,9 @@ package domain;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "options")
@@ -36,28 +38,30 @@ public class ContractOption {
     @JoinTable(name = "incompatible_options",
             joinColumns = {@JoinColumn(name = "option_id")},
             inverseJoinColumns = {@JoinColumn(name = "incomp_option_id")})
-    private List<ContractOption> incompatibleOptions;
+    private Set<ContractOption> incompatibleOptions;
 
     @ManyToMany
     @JoinTable(name = "mandatory_options",
             joinColumns = {@JoinColumn(name = "option_id")},
             inverseJoinColumns = {@JoinColumn(name = "mand_option_id")})
-    private List<ContractOption> mandatoryOptions;
+    private Set<ContractOption> mandatoryOptions;
 
     @ManyToMany (mappedBy = "mandatoryOptions")
-    private List<ContractOption> dependOptions;
+    private Set<ContractOption> dependOptions;
 
     public ContractOption() {
-        incompatibleOptions = new ArrayList<>();
-        mandatoryOptions = new ArrayList<>();
+        incompatibleOptions = new HashSet<>();
+        mandatoryOptions = new HashSet<>();
+        dependOptions = new HashSet<>();
     }
 
     public ContractOption(final String newName, final double newConnectionCost, final double newMonthlyCost) {
         name = newName;
         connectionCost = newConnectionCost;
         monthlyCost = newMonthlyCost;
-        incompatibleOptions = new ArrayList<>();
-        mandatoryOptions = new ArrayList<>();
+        incompatibleOptions = new HashSet<>();
+        mandatoryOptions = new HashSet<>();
+        dependOptions = new HashSet<>();
     }
 
     public long getId() {
@@ -96,7 +100,7 @@ public class ContractOption {
         isDeleted = deleted;
     }
 
-    public final List<ContractOption> getIncompatibleOptions() {
+    public final Set<ContractOption> getIncompatibleOptions() {
         return incompatibleOptions;
     }
 
@@ -104,15 +108,15 @@ public class ContractOption {
 //        incompatibleOptions = options;
 //    }
 
-    public final List<ContractOption> getMandatoryOptions() {
+    public final Set<ContractOption> getMandatoryOptions() {
         return mandatoryOptions;
     }
 
-    public final void setMandatoryOptions(final List<ContractOption> options) {
-        mandatoryOptions = options;
-    }
+//    public final void setMandatoryOptions(final List<ContractOption> options) {
+//        mandatoryOptions = options;
+//    }
 
-    public final List<ContractOption> getDependOptions() {
+    public final Set<ContractOption> getDependOptions() {
         return dependOptions;
     }
 }

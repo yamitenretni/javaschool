@@ -5,7 +5,9 @@ import domain.ContractOption;
 import domain.ContractTariff;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents all changes for the one contract.
@@ -85,25 +87,32 @@ public class CartContractForm {
         List<ContractOption> activeOptions = new ArrayList<>(contract.getActivatedOptions());
         activeOptions.addAll(newOptions);
         activeOptions.removeAll(unsupportedOptions);
-        //activeOptions.removeAll(deactivatedOptions);
+        activeOptions.removeAll(deactivatedOptions);
 
         for (ContractOption dependOption : option.getDependOptions()) {
-            if (activeOptions.contains(dependOption)) {
+            if (activeOptions.contains(dependOption) || deactivatedOptions.contains(dependOption)) {
                 List<ContractOption> mandatoryOptions = new ArrayList<>(dependOption.getMandatoryOptions());
+                mandatoryOptions.remove(option);
+                int mandatoryCount = mandatoryOptions.size();
+                mandatoryOptions.removeAll(activeOptions);
 
-                if (!mandatoryOptions.retainAll(activeOptions) && !dependingOptions.contains(dependOption)) {
+                if (mandatoryCount != 0 && mandatoryOptions.size() == mandatoryCount && !dependingOptions.contains(dependOption)) {
                     // TODO: 01.12.2015 delete new depend options don't add it to depending
-                    dependingOptions.add(dependOption);
                     if (newOptions.contains(dependOption)) {
                         newOptions.remove(dependOption);
                     }
-                }
-                else if (mandatoryOptions.isEmpty() && !dependingOptions.contains(dependOption)) {
-                    dependingOptions.add(dependOption);
-                    if (newOptions.contains(dependOption)) {
-                        newOptions.remove(dependOption);
+                    else {
+                        dependingOptions.add(dependOption);
                     }
                 }
+//                else if (mandatoryOptions.isEmpty() && !dependingOptions.contains(dependOption)) {
+//                    if (newOptions.contains(dependOption)) {
+//                        newOptions.remove(dependOption);
+//                    }
+//                    else {
+//                        dependingOptions.add(dependOption);
+//                    }
+//                }
 
 
             }
@@ -165,6 +174,13 @@ public class CartContractForm {
         } else if (!newOptions.contains(option)) {
             newOptions.add(option);
         }
+
+        //delete depend options from list
+        for (ContractOption dependOption : option.getDependOptions()) {
+            if (dependingOptions.contains(dependOption)) {
+                dependingOptions.remove(dependOption);
+            }
+        }
     }
 
     /**
@@ -180,7 +196,7 @@ public class CartContractForm {
             List<ContractOption> dependOptions = new ArrayList<>();
 
             for (ContractOption newOption : newOptions) {
-                List<ContractOption> mandatoryOptions = newOption.getMandatoryOptions();
+                Set<ContractOption> mandatoryOptions = newOption.getMandatoryOptions();
                 boolean isDepend = true;
                 for (ContractOption mandatoryOption : mandatoryOptions) {
                     if (getFutureOptionList().contains(mandatoryOption)) {
@@ -192,8 +208,28 @@ public class CartContractForm {
                     dependOptions.add(newOption);
                 }
             }
-
             newOptions.removeAll(dependOptions);
+
+            //add depend active option to depending option
+            List<ContractOption> options = new ArrayList<>(deactivatedOptions);
+            options.addAll(contract.getActivatedOptions());
+            for (ContractOption deactiveOption : options) {
+                Set<ContractOption> mandatoryOptions = deactiveOption.getMandatoryOptions();
+                boolean isDepend = true;
+                for (ContractOption mandatoryOption : mandatoryOptions) {
+                    if (getFutureOptionList().contains(mandatoryOption)) {
+                        isDepend = false;
+                        break;
+                    }
+                }
+                if (isDepend && !mandatoryOptions.isEmpty() && !dependingOptions.contains(deactiveOption)) {
+                    dependingOptions.add(deactiveOption);
+                }
+            }
+
+
+
+
 
         }
     }
