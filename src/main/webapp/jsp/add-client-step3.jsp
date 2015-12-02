@@ -42,7 +42,9 @@
         </div>
     </div>
     <form action="/clients/add/step3" method="post">
+        <a href="/clients/add/step2" class="btn">Previous step</a>
         <button type="submit" class="btn btn-primary" name="requestType" value="submit">Confirm</button>
+        <a href="/clients/add/cancel" class="btn btn-danger">Clear all data</a>
     </form>
 </div>
 </body>

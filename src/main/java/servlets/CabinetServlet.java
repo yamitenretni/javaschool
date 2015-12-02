@@ -89,7 +89,7 @@ public class CabinetServlet extends HttpServlet {
             List<ContractOption> availableOptions = CONTRACT_SVC.getAvailableOptions(contract, cartContractForm);
 
 
-            if (contract.getClient() == currentClient) {
+            if (contract.getClient().getId() == currentClient.getId()) {
                 req.setAttribute("contract", contract);
                 req.setAttribute("tariffs", availableTariffs);
                 req.setAttribute("availableOptions", availableOptions);
@@ -114,7 +114,7 @@ public class CabinetServlet extends HttpServlet {
             long contractId = Long.parseLong(contractUnlockMatcher.group(1));
             Contract contract = CONTRACT_SVC.getById(contractId);
 
-            if (contract.getBlockingUser() == currentUser) {
+            if (contract.getBlockingUser().getId() == currentUser.getId()) {
                 CONTRACT_SVC.unlockContract(contract);
             }
             resp.sendRedirect(refPath);

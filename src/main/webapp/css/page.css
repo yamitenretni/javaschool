@@ -18,3 +18,6 @@
 .cart-table td:first-child {
     vertical-align: middle;
 }
+.contract-title {
+    margin-top: 5px;
+}

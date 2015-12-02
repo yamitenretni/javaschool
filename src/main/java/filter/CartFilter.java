@@ -48,7 +48,7 @@ public class CartFilter implements Filter {
             User contractUser = contract.getClient().getUser();
             Date blockDate = contract.getBlockingDate();
 
-            if ((userRole == Role.EMPLOYEE || contractUser == currentUser) && blockDate == null) {
+            if ((userRole == Role.EMPLOYEE || contractUser.getId() == currentUser.getId()) && blockDate == null) {
                     filterChain.doFilter(req, resp);
             }
             else {

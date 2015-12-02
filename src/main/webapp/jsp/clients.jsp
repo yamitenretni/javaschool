@@ -10,7 +10,12 @@
 <body>
 <div class="page">
     <%@include file="/jsp/nav-bar.jsp" %>
-    <a href="/clients/add/step1" class="btn btn-primary">Add Client</a>
+
+    <div class="btn-group" role="group" aria-label="...">
+        <a href="/clients/add/step1" class="btn btn-primary" role="button">Add Client</a>
+    </div>
+
+
     <table class="table">
         <caption>All clients:</caption>
         <thead>
@@ -27,11 +32,12 @@
                         <code>Blocked</code>
                     </c:if></td>
                 <td>
-                    <ul>
-                        <c:forEach items="${client.contracts}" var="contract">
-                            <li><a href="/contracts/${contract.id}">+${contract.number}</a></li>
-                        </c:forEach>
-                    </ul>
+                    <c:forEach items="${client.contracts}" var="contract">
+                        <a href="/contracts/${contract.id}">+${contract.number}</a>
+                        <c:if test="${client.blocked}">
+                            <code>Blocked</code>
+                        </c:if> <br/>
+                    </c:forEach>
                 </td>
             </tr>
         </c:forEach>

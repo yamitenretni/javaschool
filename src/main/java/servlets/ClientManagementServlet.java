@@ -1,5 +1,6 @@
 package servlets;
 
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 import domain.*;
 import form.CartContractForm;
 import form.CartForm;
@@ -69,6 +70,14 @@ public class ClientManagementServlet extends HttpServlet {
      */
     private final Pattern clientAddThirdPattern = Pattern.compile("^/clients/add/step3$");
     /**
+     * URL regexp for cancel new client registration.
+     */
+    private static final Pattern CANCEL_ADD_CLIENT_PATTERN = Pattern.compile("^/clients/add/cancel$");
+    /**
+     * URL regexp for adding new contract.
+     */
+    private static final Pattern ADD_CONTRACT_PATTERN = Pattern.compile("^/clients/(\\d+)/add-contract");
+    /**
      * URL regexp for the client blocking.
      */
     private static final Pattern CLIENT_BLOCK_PATTERN = Pattern.compile("^/clients/(\\d+)/block$");
@@ -113,6 +122,7 @@ public class ClientManagementServlet extends HttpServlet {
         Matcher clientAddFirstMatcher = clientAddFirstPattern.matcher(actionPath);
         Matcher clientAddSecondMatcher = clientAddSecondPattern.matcher(actionPath);
         Matcher clientAddThirdMatcher = clientAddThirdPattern.matcher(actionPath);
+        Matcher cancelAddClientMatcher = CANCEL_ADD_CLIENT_PATTERN.matcher(actionPath);
 
         Matcher clientListMatcher = clientListPattern.matcher(actionPath);
         Matcher clientPageMatcher = clientPagePattern.matcher(actionPath);
@@ -121,6 +131,7 @@ public class ClientManagementServlet extends HttpServlet {
         Matcher clientUnlockMatcher = CLIENT_UNLOCK_PATTERN.matcher(actionPath);
 
         Matcher contractPageMatcher = contractPagePattern.matcher(actionPath);
+        Matcher addContractMatcher = ADD_CONTRACT_PATTERN.matcher(actionPath);
 
         Matcher contractBlockMatcher = CONTRACT_BLOCK_PATTERN.matcher(actionPath);
         Matcher contractUnlockMatcher = CONTRACT_UNLOCK_PATTERN.matcher(actionPath);
@@ -146,20 +157,61 @@ public class ClientManagementServlet extends HttpServlet {
          * Get first step of client registration.
          */
         else if (clientAddFirstMatcher.matches()) {
+            Client newClient = (Client) session.getAttribute("newClient");
+
+            if (newClient != null) {
+                req.setAttribute("firstName", newClient.getFirstName());
+                req.setAttribute("lastName", newClient.getLastName());
+                req.setAttribute("birthDate", newClient.getBirthDate());
+                req.setAttribute("passport", newClient.getPassportData());
+                req.setAttribute("address", newClient.getAddress());
+                req.setAttribute("email", newClient.getUser().getLogin());
+            }
+
             req.getRequestDispatcher("/jsp/add-client-step1.jsp").forward(req, resp);
         }
         /**
          * Get second step of client registration.
          */
         else if (clientAddSecondMatcher.matches()) {
-            req.setAttribute("tariffs", tariffSvc.getActiveTariffs());
-            req.getRequestDispatcher("/jsp/add-client-step2.jsp").forward(req, resp);
+            Contract newContract = (Contract) session.getAttribute("newContract");
+
+            if (session.getAttribute("newClient") == null) {
+                resp.sendRedirect("/clients/add/step1");
+            } else {
+                if (newContract != null) {
+                    req.setAttribute("number", newContract.getNumber());
+                    req.setAttribute("selectedTariff", newContract.getTariff());
+
+                    List<Long> savedOptions = new ArrayList<>();
+                    for (ContractOption activeOption : newContract.getActivatedOptions()) {
+                        savedOptions.add(activeOption.getId());
+                    }
+                    req.setAttribute("savedOptions", savedOptions);
+                }
+                req.setAttribute("tariffs", tariffSvc.getActiveTariffs());
+                req.getRequestDispatcher("/jsp/add-client-step2.jsp").forward(req, resp);
+            }
         }
         /**
          * Get third step of client registration.
          */
         else if (clientAddThirdMatcher.matches()) {
-            req.getRequestDispatcher("/jsp/add-client-step3.jsp").forward(req, resp);
+            if (session.getAttribute("newClient") == null) {
+                resp.sendRedirect("/clients/add/step1");
+            } else if (session.getAttribute("newContract") == null) {
+                resp.sendRedirect("/clients/add/step2");
+            } else {
+                req.getRequestDispatcher("/jsp/add-client-step3.jsp").forward(req, resp);
+            }
+        }
+        /**
+         * Cancel client registration.
+         */
+        else if (cancelAddClientMatcher.matches()) {
+            session.setAttribute("newClient", null);
+            session.setAttribute("newContract", null);
+            resp.sendRedirect("/clients");
         }
         /**
          * Get contract info.
@@ -181,13 +233,22 @@ public class ClientManagementServlet extends HttpServlet {
             List<ContractOption> availableOptions = contractSvc.getAvailableOptions(contract, cartContractForm);
 
 
-
             req.setAttribute("contract", contract);
             req.setAttribute("availableOptions", availableOptions);
             req.setAttribute("tariffs", availableTariffs);
             req.setAttribute("incompatibleOptions", contractSvc.getIncompatibleOptions(contract, cartContractForm));
             req.setAttribute("dependOptions", contractSvc.getDependOptions(contract, cartContractForm));
             req.getRequestDispatcher("/jsp/read-contract.jsp").forward(req, resp);
+        }
+        /**
+         * Add new contract.
+         */
+        else if (addContractMatcher.matches()) {
+            long clientId = Long.parseLong(addContractMatcher.group(1));
+            Client selectedClient = clientSvc.getById(clientId);
+            req.setAttribute("selectedClient", selectedClient);
+            req.setAttribute("tariffs", tariffSvc.getActiveTariffs());
+            req.getRequestDispatcher("/jsp/add-contract.jsp").forward(req, resp);
         }
         /**
          * Block contract.
@@ -255,6 +316,7 @@ public class ClientManagementServlet extends HttpServlet {
         Matcher clientAddSecondMatcher = clientAddSecondPattern.matcher(actionPath);
         Matcher clientAddThirdMatcher = clientAddThirdPattern.matcher(actionPath);
         Matcher searchClientMatcher = CLIENT_SEARCH_PATTERN.matcher(actionPath);
+        Matcher addContractMatcher = ADD_CONTRACT_PATTERN.matcher(actionPath);
 
         HttpSession session = req.getSession();
 
@@ -299,8 +361,7 @@ public class ClientManagementServlet extends HttpServlet {
                 session.setAttribute("newClient", newClient);
 
                 resp.sendRedirect("/clients/add/step2");
-            }
-            else {
+            } else {
                 req.setAttribute("errors", validErrs);
                 req.setAttribute("firstName", firstName);
                 req.setAttribute("lastName", lastName);
@@ -317,7 +378,6 @@ public class ClientManagementServlet extends HttpServlet {
          */
         else if (clientAddSecondMatcher.matches() && "submit".equals(req.getParameter("requestType"))) {
             List<String> validErrs = new ArrayList<>();
-            // TODO: 26.11.2015 add redirect to the first step if session doesn't contain client
 
             //Save all parameters
             String number = req.getParameter("contractNumber");
@@ -349,8 +409,7 @@ public class ClientManagementServlet extends HttpServlet {
                 session.setAttribute("newContract", contract);
 
                 resp.sendRedirect("/clients/add/step3");
-            }
-            else {
+            } else {
                 req.setAttribute("errors", validErrs);
                 req.setAttribute("number", number);
                 req.setAttribute("selectedTariff", tariff);
@@ -378,10 +437,13 @@ public class ClientManagementServlet extends HttpServlet {
 
             newClientContracts.add(newContract);
             newClient.setContracts(newClientContracts);
-
+            session.setAttribute("newClient", null);
+            session.setAttribute("newContract", null);
             resp.sendRedirect("/clients");
         }
-
+        /**
+         * Search client by contract.
+         */
         else if (searchClientMatcher.matches()) {
             String contractNumber = req.getParameter("contract");
 
@@ -389,11 +451,60 @@ public class ClientManagementServlet extends HttpServlet {
 
             if (contract != null) {
                 resp.sendRedirect("/clients/" + contract.getClient().getId());
-            }
-            else {
+            } else {
                 // TODO: 30.11.2015 why you doesn't work?!
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "No such client");
             }
+
+        }
+        /**
+         * Add new contract for client.
+         */
+        else if (addContractMatcher.matches()){
+            List<String> validErrs = new ArrayList<>();
+
+            //Save all parameters
+            String number = req.getParameter("contractNumber");
+            Long tariffId = Long.parseLong(req.getParameter("contractTariff"));
+            ContractTariff tariff = tariffSvc.getById(tariffId);
+            String[] selectedOptions = req.getParameterValues("selectedOptions[]");
+
+            List<Long> savedOptions = new ArrayList<>();
+            for (String optionId : selectedOptions) {
+                savedOptions.add(Long.parseLong(optionId));
+            }
+
+            //Validation
+            if (!contractSvc.hasUniqueNumber(0L, req.getParameter("contractNumber"))) {
+                validErrs.add("notUniqueNumber");
+            }
+
+            if (validErrs.isEmpty()) {
+                long clientId = Long.parseLong(addContractMatcher.group(1));
+                Client selectedClient = clientSvc.getById(clientId);
+
+                List<ContractOption> activatedOptions = new ArrayList<>();
+                if (selectedOptions != null) {
+                    for (String optionId : selectedOptions) {
+                        activatedOptions.add(optionSvc.getById(Long.parseLong(optionId)));
+                    }
+                }
+
+                Contract newContract = contractSvc.upsertContract(0L, selectedClient, number, tariff, activatedOptions);
+                List<Contract> clientContracts = selectedClient.getContracts();
+                clientContracts.add(newContract);
+
+                resp.sendRedirect("/clients/" + clientId);
+            } else {
+                req.setAttribute("errors", validErrs);
+                req.setAttribute("number", number);
+                req.setAttribute("selectedTariff", tariff);
+                req.setAttribute("savedOptions", savedOptions);
+                doGet(req, resp);
+            }
+
+
+
 
         }
     }

@@ -279,8 +279,6 @@ public class CartContractForm {
         newTariff = null;
 
         // add depend options from unsupported
-//        List<ContractOption> options = new ArrayList<>(deactivatedOptions);
-//        options.addAll(contract.getActivatedOptions());
         for (ContractOption unsupportedOption : unsupportedOptions) {
             Set<ContractOption> mandatoryOptions = unsupportedOption.getMandatoryOptions();
             boolean isDepend = true;
@@ -312,6 +310,35 @@ public class CartContractForm {
         options.removeAll(dependingOptions);
 
         return options;
+    }
+
+    /**
+     * Get contract that will be saved after submit.
+     * @return prototype of new contract
+     */
+    public final Contract getFutureContract() {
+        Contract futureContract = new Contract();
+        futureContract.setClient(contract.getClient());
+        futureContract.setNumber(contract.getNumber());
+        futureContract.setTariff(contract.getTariff());
+        if (newTariff != null) {
+            futureContract.setTariff(newTariff);
+        }
+        futureContract.setActivatedOptions(getFutureOptionList());
+
+        return futureContract;
+    }
+
+    /**
+     * Get total cost of connection for all new options.
+     * @return total connection cost
+     */
+    public final double getTotalConnectionCost() {
+        double totalCost = 0;
+        for (ContractOption option : newOptions) {
+            totalCost += option.getConnectionCost();
+        }
+        return totalCost;
     }
 
     /**

@@ -30,7 +30,7 @@ public class CartForm {
      */
     public final CartContractForm getCartContractForm(final Contract contract) {
         for (CartContractForm cartContract : cartContractForms) {
-            if (cartContract.getContract() == contract) {
+            if (cartContract.getContract().getId() == contract.getId()) {
                 return cartContract;
             }
         }

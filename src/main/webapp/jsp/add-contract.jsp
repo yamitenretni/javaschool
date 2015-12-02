@@ -2,7 +2,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Add new client and contract</title>
+    <title>Add new contract</title>
     <meta charset="utf-8"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/page.css">
@@ -10,7 +10,8 @@
 <body>
 <div class="page">
     <%@include file="/jsp/nav-bar.jsp" %>
-    <form action="/clients/add/step2" method="post" accept-charset="utf-8">
+    <h3> New contract for ${selectedClient.firstName} ${selectedClient.lastName}</h3>
+    <form action="/clients/${selectedClient.id}/add-contract" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="contractNumber">Phone number</label>
             <c:if test="${errors.contains('notUniqueNumber')}">
@@ -45,9 +46,7 @@
             </c:forEach>
         </div>
 
-        <a href="/clients/add/step1" class="btn">Previous step</a>
-        <button type="submit" class="btn btn-primary" name="requestType" value="submit">Next step</button>
-        <a href="/clients/add/cancel" class="btn btn-danger">Clear all data</a>
+        <button type="submit" class="btn btn-primary" name="requestType" value="submit">Save contract</button>
     </form>
 </div>
 <script src="http://code.jquery.com/jquery-latest.js"></script>

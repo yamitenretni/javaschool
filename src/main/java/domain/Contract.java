@@ -65,6 +65,15 @@ public class Contract {
         return true;
     }
 
+    public double getTotalMonthlyCost() {
+        double totalCost = tariff.getMonthlyCost();
+        for (ContractOption activeOption : activatedOptions) {
+            totalCost += activeOption.getMonthlyCost();
+        }
+
+        return totalCost;
+    }
+
     public long getId() {
         return id;
     }

@@ -51,7 +51,7 @@
                             <a href="/my/contracts/${contract.id}/block" class="btn">Block contract</a>
                         </c:when>
                         <c:otherwise>
-                            <c:if test="${contract.blockingUser == currentUser}">
+                            <c:if test="${contract.blockingUser.id == currentUser.id}">
                                 <a href="/my/contracts/${contract.id}/unlock" class="btn">Unlock contract</a>
                             </c:if>
                         </c:otherwise>

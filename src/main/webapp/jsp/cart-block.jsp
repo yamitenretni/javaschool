@@ -78,7 +78,14 @@
                                     <td>Need mandatory option</td>
                                 </tr>
                             </c:forEach>
-
+                            <tr>
+                                <td colspan="4">Total connection cost: <fmt:setLocale value="en_US"/>
+                                    <fmt:formatNumber value="${cartPosition.totalConnectionCost}" type="number" maxFractionDigits="2"/></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">Total monthly cost after saving: <fmt:setLocale value="en_US"/>
+                                    <fmt:formatNumber value="${cartPosition.futureContract.totalMonthlyCost}" type="number" maxFractionDigits="2"/></td>
+                            </tr>
 
                             </tbody>
                         </table>

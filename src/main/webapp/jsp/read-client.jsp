@@ -11,6 +11,7 @@
 <body>
 <div class="page">
     <%@include file="/jsp/nav-bar.jsp" %>
+    <h3>Personal information:</h3>
     <p><label>Name:</label> ${client.firstName} ${client.lastName}
         <c:if test="${client.blocked}">
             <code>Blocked since
@@ -28,13 +29,13 @@
 
     <p><label>E-mail:</label> ${client.user.login}</p>
 
+    <h3>Contracts:</h3>
     <table class="table">
-        <caption>Contracts:</caption>
         <thead>
         <tr>
             <th>Number</th>
             <th>Tariff</th>
-            <th>Options</th>
+            <th>Active Options</th>
             <th></th>
         </tr>
         </thead>
@@ -53,11 +54,9 @@
                 </td>
                 <td>${contract.tariff.name}</td>
                 <td>
-                    <ul>
                         <c:forEach items="${contract.activatedOptions}" var="option">
-                            <li>${option.name}</li>
+                            ${option.name}<br />
                         </c:forEach>
-                    </ul>
                 </td>
                 <td>
                     <a href="/contracts/${contract.id}" class="btn">Contract info</a><br/>
@@ -76,16 +75,24 @@
         </c:forEach>
         </tbody>
     </table>
-    <c:choose>
-        <c:when test="${not client.blocked}">
-            <a href="/clients/${client.id}/block" class="btn btn-danger">Block client</a>
-        </c:when>
-        <c:otherwise>
-                <a href="/clients/${client.id}/unlock" class="btn btn-success">Unlock client</a>
-        </c:otherwise>
-    </c:choose>
+    <div class="btn-toolbar" role="toolbar" aria-label="...">
+        <div class="btn-group" role="group" aria-label="...">
+            <a href="/clients/${client.id}/add-contract" class="btn btn-default" role="button">Add contract</a>
+            <c:choose>
+                <c:when test="${not client.blocked}">
+                    <a href="/clients/${client.id}/block" class="btn btn-default" role="button">Block client</a>
+                </c:when>
+                <c:otherwise>
+                    <a href="/clients/${client.id}/unlock" class="btn btn-default" role="button">Unlock client</a>
+                </c:otherwise>
+            </c:choose>
+        </div>
 
-    <a href="/clients" class="btn">Back to clients</a>
+        <div class="btn-group" role="group" aria-label="...">
+            <a href="/clients" class="btn btn-default" role="button">Back to clients</a>
+        </div>
+    </div>
+
 
 </div>
 </body>

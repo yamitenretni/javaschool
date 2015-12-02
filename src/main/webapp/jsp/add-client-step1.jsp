@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -21,7 +22,7 @@
         </div>
         <div class="form-group">
             <label for="birthDate">Date of birth</label>
-            <input type="date" class="form-control" id="birthDate" name="birthDate" placeholder="Date of birth" value="${birthDate}" required>
+            <input type="date" class="form-control" id="birthDate" name="birthDate" placeholder="Date of birth" value="<fmt:formatDate pattern="yyyy-MM-dd" value="${birthDate}" />" required>
         </div>
         <div class="form-group">
             <label for="passport">Passport</label>
@@ -47,7 +48,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary" name="requestType" value="submit">Next step</button>
-
+        <a href="/clients/add/cancel" class="btn btn-danger">Clear all data</a>
     </form>
 </div>
 

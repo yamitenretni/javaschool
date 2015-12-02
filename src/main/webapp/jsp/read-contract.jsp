@@ -12,128 +12,167 @@
 <body>
 <div class="page">
     <%@include file="/jsp/nav-bar.jsp" %>
-    <p><label>Owner:</label> ${contract.client.firstName} ${contract.client.lastName}</p>
+    <div class="clearfix">
+        <h3 class="pull-left contract-title">Phone number: +${contract.number}
+            <c:if test="${contract.blocked}">
+                <code>
+                    Blocked since
+                    <fmt:formatDate pattern="dd.MM.yyyy" value="${contract.blockingDate}"/>
+                </code>
+            </c:if>
+        </h3>
 
-    <p>
-        <label>Phone number:</label> +${contract.number}
-        <c:if test="${contract.blocked}">
-            <code>
-                Blocked since
-                <fmt:formatDate pattern="dd.MM.yyyy" value="${contract.blockingDate}"/>
-            </code>
-        </c:if></p>
-
-    <p><label>Current tariff:</label> ${contract.tariff.name}: ${contract.tariff.monthlyCost} every month</p>
-
-    <c:if test="${not contract.blocked}">
-
-        <form action="/cart/${contract.id}/newtariff" method="post" accept-charset="utf-8">
-
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="input-group">
-                        <select name="newTariff" id="newTariff" class="form-control" required>
-                            <option value="">-- Here you can select new tariff --</option>
-                            <c:forEach items="${tariffs}" var="tariff">
-                                <option value="${tariff.id}">${tariff.name}: ${tariff.monthlyCost} every month</option>
-                            </c:forEach>
-                        </select>
-      <span class="input-group-btn">
-        <button type="submit" class="btn" name="requestType" value="submit">Change!</button>
-      </span>
-                    </div>
-                </div>
+        <c:if test="${not client.blocked}">
+            <div class="btn-group pull-right" role="group" aria-label="...">
+                <c:choose>
+                    <c:when test="${not contract.blocked}">
+                        <a href="/contracts/${contract.id}/block" class="btn btn-default" role="button">Block
+                            contract</a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="/contracts/${contract.id}/unlock" class="btn btn-default" role="button">Unlock
+                            contract</a>
+                    </c:otherwise>
+                </c:choose>
             </div>
+        </c:if>
+    </div>
 
-        </form>
-    </c:if>
-
-    <c:if test="${not empty contract.activatedOptions}">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <label>Owner:</label> <a
+                    href="/clients/${contract.client.id}">${contract.client.firstName} ${contract.client.lastName}</a>
+            </h3>
+        </div>
+        <div class="panel-body">
+            Current tariff and options:
+        </div>
         <table class="table">
-            <caption>Activated options:</caption>
             <thead>
             <tr>
                 <th>Name</th>
-                <th>Connection cost</th>
                 <th>Monthly cost</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-            <c:forEach items="${contract.activatedOptions}" var="option">
-                <tr>
-                    <td>${option.name}</td>
-                    <td>${option.connectionCost}</td>
-                    <td>${option.monthlyCost}</td>
-                    <td>
-                        <c:choose>
-                            <c:when test="${currentCartPosition.deactivatedOptions.contains(option) or currentCartPosition.dependingOptions.contains(option) or currentCartPosition.unsupportedOptions.contains(option)}">
-                                Deactivated
-                            </c:when>
+            <tr class="info">
+                <td><label>Tariff:</label> ${contract.tariff.name}</td>
+                <td>${contract.tariff.monthlyCost}</td>
+                <td></td>
+            </tr>
+            <c:if test="${not empty contract.activatedOptions}">
 
-                            <c:when test="${not contract.blocked}">
-                                <a href="/cart/${contract.id}/deactivate/${option.id}" class="btn">Deactivate</a>
-                            </c:when>
-                        </c:choose>
-                    </td>
-                </tr>
-            </c:forEach>
+                <c:forEach items="${contract.activatedOptions}" var="option">
+                    <tr>
+                        <td>${option.name}</td>
+                        <td>${option.monthlyCost}</td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${currentCartPosition.deactivatedOptions.contains(option) or currentCartPosition.dependingOptions.contains(option) or currentCartPosition.unsupportedOptions.contains(option)}">
+                                    Deactivated
+                                </c:when>
+                                <c:when test="${not contract.blocked}">
+                                    <a href="/cart/${contract.id}/deactivate/${option.id}">Deactivate</a>
+                                </c:when>
+                            </c:choose>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </c:if>
+            <tr>
+                <td><label>Total:</label></td>
+                <td><fmt:setLocale value="en_US"/><fmt:formatNumber value="${contract.totalMonthlyCost}" type="number"
+                                                                    maxFractionDigits="2"/></td>
+                <td></td>
+            </tr>
             </tbody>
         </table>
-    </c:if>
+    </div>
 
     <c:if test="${empty availableOptions and empty incompatibleOptions}">
         <p>All available options for selected tariff are activated yet.</p>
+
         <p></p>
     </c:if>
 
-    <c:if test="${not contract.blocked and (not empty availableOptions or not empty incompatibleOptions)}">
-        <table class="table">
-            <caption>Another options for selected tariff:</caption>
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>Connection cost</th>
-                <th>Monthly cost</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-                <c:forEach items="${availableOptions}" var="option">
+    <c:if test="${not contract.blocked}">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">You can change tariff and activate new options</h3>
+            </div>
+            <div class="panel-body">
+                <form action="/cart/${contract.id}/newtariff" method="post" accept-charset="utf-8">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <select name="newTariff" id="newTariff" class="form-control" required>
+                                    <option value="">-- Select new tariff --</option>
+                                    <c:forEach items="${tariffs}" var="tariff">
+                                        <option value="${tariff.id}">${tariff.name}: ${tariff.monthlyCost} every month
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                                <span class="input-group-btn">
+                                    <button type="submit" class="btn btn-default" name="requestType" value="submit">
+                                        Change
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <c:if test="${not contract.blocked and (not empty availableOptions or not empty incompatibleOptions or not empty dependingOptions)}">
+                <table class="table">
+                    <caption>Available options for selected tariff:</caption>
+                    <thead>
                     <tr>
-                        <td>${option.name}</td>
-                        <td>${option.connectionCost}</td>
-                        <td>${option.monthlyCost}</td>
-                        <td><a href="/cart/${contract.id}/add/${option.id}" class="btn">Activate</a></td>
+                        <th>Name</th>
+                        <th>Connection cost</th>
+                        <th>Monthly cost</th>
+                        <th></th>
                     </tr>
-                </c:forEach>
-            <c:forEach items="${incompatibleOptions}" var="entry">
-                <tr style="color: #ccc;">
-                    <td>${entry.key.name}
-                    </td>
-                    <td>${entry.key.connectionCost}</td>
-                    <td>${entry.key.monthlyCost}</td>
-                    <td>Incompatible with: <br/>
-                        <c:forEach items="${entry.value}" var="incOption">
-                            ${incOption.name} <br/>
-                        </c:forEach></td>
-                </tr>
-            </c:forEach>
-                <c:forEach items="${dependOptions}" var="entry">
-                    <tr style="color: #ccc;">
-                        <td>${entry.key.name}
-                        </td>
-                        <td>${entry.key.connectionCost}</td>
-                        <td>${entry.key.monthlyCost}</td>
-                        <td>Depend on: <br/>
-                            <c:forEach items="${entry.value}" var="incOption">
-                                ${incOption.name} <br/>
-                            </c:forEach></td>
-                    </tr>
-                </c:forEach>
-
-            </tbody>
-        </table>
+                    </thead>
+                    <tbody>
+                    <c:forEach items="${availableOptions}" var="option">
+                        <tr>
+                            <td>${option.name}</td>
+                            <td>${option.connectionCost}</td>
+                            <td>${option.monthlyCost}</td>
+                            <td><a href="/cart/${contract.id}/add/${option.id}">Activate</a></td>
+                        </tr>
+                    </c:forEach>
+                    <c:forEach items="${incompatibleOptions}" var="entry">
+                        <tr style="color: #ccc;">
+                            <td>${entry.key.name}
+                            </td>
+                            <td>${entry.key.connectionCost}</td>
+                            <td>${entry.key.monthlyCost}</td>
+                            <td>Incompatible with: <br/>
+                                <c:forEach items="${entry.value}" var="incOption">
+                                    ${incOption.name} <br/>
+                                </c:forEach></td>
+                        </tr>
+                    </c:forEach>
+                    <c:forEach items="${dependOptions}" var="entry">
+                        <tr style="color: #ccc;">
+                            <td>${entry.key.name}
+                            </td>
+                            <td>${entry.key.connectionCost}</td>
+                            <td>${entry.key.monthlyCost}</td>
+                            <td>Depend on: <br/>
+                                <c:forEach items="${entry.value}" var="incOption">
+                                    ${incOption.name} <br/>
+                                </c:forEach>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    </tbody>
+                </table>
+            </c:if>
+        </div>
     </c:if>
     <%@include file="/jsp/cart-block.jsp" %>
 </div>

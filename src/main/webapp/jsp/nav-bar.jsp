@@ -21,7 +21,7 @@
                            aria-expanded="false">Tariffs<span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="/tariffs">Tariff list</a></li>
-                            <li><a href="/tariffs/add">New Tariff</a></li>
+                            <li><a href="/tariffs/add">New tariff</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
