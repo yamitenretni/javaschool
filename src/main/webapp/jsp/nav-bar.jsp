@@ -1,6 +1,5 @@
 <nav class="navbar navbar-default">
     <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
                     data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -9,13 +8,15 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">eCare</a>
+            <a class="navbar-brand" href="/my">eCare</a>
         </div>
 
-        <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <c:if test="${currentUser.roleName != 'CLIENT'}">
-                <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav">
+                <c:if test="${currentUser.roleName == 'CLIENT'}">
+                    <li><a href="/my/tariffs">Tariffs</a></li>
+                </c:if>
+                <c:if test="${currentUser.roleName != 'CLIENT'}">
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">Tariffs<span class="caret"></span></a>
@@ -40,10 +41,13 @@
                             <li><a href="/clients/add/step1">New client</a></li>
                         </ul>
                     </li>
-                </ul>
+                </c:if>
+            </ul>
+            <c:if test="${currentUser.roleName != 'CLIENT'}">
                 <form class="navbar-form navbar-left" role="search" action="/clients/search" method="post">
                     <div class="form-group">
-                        <input type="text" class="form-control" name="contract" placeholder="Search by contract" pattern="\d+" required>
+                        <input type="text" class="form-control" name="contract" placeholder="Search by contract"
+                               pattern="\d+" required>
                     </div>
                     <button type="submit" class="btn btn-default">Submit</button>
                 </form>

@@ -14,7 +14,7 @@
     <h3>Welcome to your personal area</h3>
 
     <table class="table">
-        <caption>Here's all your contracts:</caption>
+        <caption>Your contracts:</caption>
         <thead>
         <tr>
             <th>Number</th>

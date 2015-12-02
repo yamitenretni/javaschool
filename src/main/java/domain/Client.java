@@ -1,6 +1,7 @@
 package domain;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -114,6 +115,16 @@ public class Client {
             return false;
         }
         return true;
+    }
+
+    public final List<Contract> getActiveContracts() {
+        List<Contract> activeContracts = new ArrayList<>();
+        for (Contract contract: contracts) {
+            if (!contract.isBlocked()) {
+                activeContracts.add(contract);
+            }
+        }
+        return activeContracts;
     }
 
     /**

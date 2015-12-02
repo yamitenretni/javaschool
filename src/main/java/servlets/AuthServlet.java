@@ -2,6 +2,7 @@ package servlets;
 
 import domain.Role;
 import domain.User;
+import service.ClientService;
 import service.UserService;
 
 import javax.servlet.ServletException;
@@ -29,6 +30,7 @@ public class AuthServlet extends HttpServlet {
     private static final Pattern LOGOUT_PATTERN = Pattern.compile("^/logout$");
 
     private static final UserService USER_SVC = new UserService();
+    private static final ClientService CLIENT_SVC = new ClientService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -72,13 +74,17 @@ public class AuthServlet extends HttpServlet {
             } else {
                 User currentUser = USER_SVC.getById(userId);
                 req.getSession().setAttribute("currentUser", currentUser);
-                if (refPath == "") {
-                    if (currentUser.getRole() == Role.CLIENT) {
+
+                if (currentUser.getRole() == Role.CLIENT) {
+                    req.getSession().setAttribute("currentClient", CLIENT_SVC.getByUser(currentUser));
+                    if (refPath == "") {
                         refPath = "/my";
-                    } else if (currentUser.getRole() == Role.EMPLOYEE) {
-                        refPath = "/clients";
                     }
                 }
+                else if (currentUser.getRole() == Role.EMPLOYEE){
+                    refPath = "/clients";
+                }
+
                 resp.sendRedirect(refPath);
             }
         }

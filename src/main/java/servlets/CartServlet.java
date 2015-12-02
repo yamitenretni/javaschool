@@ -69,34 +69,34 @@ public class CartServlet extends HttpServlet {
      * Get service for tariffs.
      */
     private static final ContractTariffService TARIFF_SVC = new ContractTariffService();
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        final String actionPath = req.getRequestURI();
-        final String refPath = req.getHeader("referer");
-
-        Matcher editTariffMatcher = EDIT_TARIFF.matcher(actionPath);
-
-        if (editTariffMatcher.matches()) {
-            CartForm cartForm;
-            CartContractForm cartContractForm;
-
-            long contractId = Long.parseLong(editTariffMatcher.group(1));
-            long tariffId = Long.parseLong(req.getParameter("newTariff"));
-            Contract contract = CONTRACT_SVC.getById(contractId);
-            ContractTariff tariff = TARIFF_SVC.getById(tariffId);
-
-            HttpSession session = req.getSession();
-            cartForm = getSessionCartForm(session);
-            cartContractForm = cartForm.getCartContractForm(contract);
-
-            cartContractForm.changeTariff(tariff);
-            session.setAttribute("cartForm", cartForm);
-
-            resp.sendRedirect(refPath);
-        }
-
-    }
+//
+//    @Override
+//    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        final String actionPath = req.getRequestURI();
+//        final String refPath = req.getHeader("referer");
+//
+//        Matcher editTariffMatcher = EDIT_TARIFF.matcher(actionPath);
+//
+//        if (editTariffMatcher.matches()) {
+//            CartForm cartForm;
+//            CartContractForm cartContractForm;
+//
+//            long contractId = Long.parseLong(editTariffMatcher.group(1));
+//            long tariffId = Long.parseLong(req.getParameter("newTariff"));
+//            Contract contract = CONTRACT_SVC.getById(contractId);
+//            ContractTariff tariff = TARIFF_SVC.getById(tariffId);
+//
+//            HttpSession session = req.getSession();
+//            cartForm = getSessionCartForm(session);
+//            cartContractForm = cartForm.getCartContractForm(contract);
+//
+//            cartContractForm.changeTariff(tariff);
+//            session.setAttribute("cartForm", cartForm);
+//
+//            resp.sendRedirect(refPath);
+//        }
+//
+//    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -107,6 +107,7 @@ public class CartServlet extends HttpServlet {
         Matcher cancelDeactivateOptionMatcher = CANCEL_DEACTIVATE_OPTION.matcher(actionPath);
         Matcher addOptionMatcher = ADD_OPTION.matcher(actionPath);
         Matcher cancelAddOptionMatcher = CANCEL_ADD_OPTION.matcher(actionPath);
+        Matcher editTariffMatcher = EDIT_TARIFF.matcher(actionPath);
         Matcher cancelEditTariff = CANCEL_EDIT_TARIFF.matcher(actionPath);
         Matcher saveChanges = SAVE_CHANGES.matcher(actionPath);
         Matcher clearCart = CLEAR_CART.matcher(actionPath);
@@ -196,7 +197,29 @@ public class CartServlet extends HttpServlet {
 
             resp.sendRedirect(refPath);
         }
+        else if (editTariffMatcher.matches()) {
+            CartForm cartForm;
+            CartContractForm cartContractForm;
 
+            long contractId = Long.parseLong(editTariffMatcher.group(1));
+            long tariffId = Long.parseLong(req.getParameter("newTariff"));
+            Contract contract = CONTRACT_SVC.getById(contractId);
+            ContractTariff tariff = TARIFF_SVC.getById(tariffId);
+
+            HttpSession session = req.getSession();
+            cartForm = getSessionCartForm(session);
+            cartContractForm = cartForm.getCartContractForm(contract);
+
+            cartContractForm.changeTariff(tariff);
+            session.setAttribute("cartForm", cartForm);
+
+            if (refPath.contains("/my/tariffs/compare")) {
+                resp.sendRedirect("/my/contracts/" + contractId);
+            }
+            else {
+                resp.sendRedirect(refPath);
+            }
+        }
         /**
          * Cancel tariff edit.
          */

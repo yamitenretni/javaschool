@@ -103,7 +103,7 @@
                 <h3 class="panel-title">You can change tariff and activate new options</h3>
             </div>
             <div class="panel-body">
-                <form action="/cart/${contract.id}/newtariff" method="post" accept-charset="utf-8">
+                <form action="/cart/${contract.id}/newtariff" method="get" accept-charset="utf-8">
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="input-group">
@@ -121,9 +121,11 @@
                                 </span>
                             </div>
                         </div>
+                        <a href="/my/tariffs" class="btn btn-default"> Learn more about tariffs</a>
                     </div>
                 </form>
             </div>
+
             <c:if test="${not contract.blocked and (not empty availableOptions or not empty incompatibleOptions or not empty dependingOptions)}">
                 <table class="table">
                     <caption>Available options for selected tariff:</caption>
