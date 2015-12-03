@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -10,6 +11,7 @@
 <body>
 <div class="page">
     <%@include file="/jsp/nav-bar.jsp" %>
+    <h3>Add contract for ${newClient.firstName} ${newClient.lastName}</h3>
     <form action="/clients/add/step2" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="contractNumber">Phone number</label>
@@ -45,12 +47,14 @@
             </c:forEach>
         </div>
 
-        <a href="/clients/add/step1" class="btn">Previous step</a>
+        <a href="/clients/add/step1" class="btn btn-default">Previous step</a>
         <button type="submit" class="btn btn-primary" name="requestType" value="submit">Next step</button>
         <a href="/clients/add/cancel" class="btn btn-danger">Clear all data</a>
     </form>
+    <%@include file="/jsp/cart-block.jsp" %>
 </div>
 <script src="http://code.jquery.com/jquery-latest.js"></script>
 <script src="/js/contract.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </body>
 </html>

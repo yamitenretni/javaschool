@@ -251,6 +251,7 @@ public class CartServlet extends HttpServlet {
 
             List<ContractOption> deactivatedOptions = cartContractForm.getDeactivatedOptions();
             deactivatedOptions.addAll(cartContractForm.getUnsupportedOptions());
+            deactivatedOptions.addAll(cartContractForm.getDependingOptions());
             List<ContractOption> newOptions = cartContractForm.getNewOptions();
             ContractTariff newTariff = cartContractForm.getNewTariff();
 

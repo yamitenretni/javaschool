@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -10,6 +11,7 @@
 <body>
 <div class="page">
     <%@include file="/jsp/nav-bar.jsp" %>
+    <h3>Add new option</h3>
     <form action="/options/add" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="option_name">Option name</label>
@@ -69,8 +71,10 @@
         <a href="/options" class="btn">Back to options</a>
 
     </form>
+    <%@include file="/jsp/cart-block.jsp" %>
 </div>
 <script src="http://code.jquery.com/jquery-latest.js"></script>
 <script src="/js/option.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </body>
 </html>

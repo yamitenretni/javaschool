@@ -1,6 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="C" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -47,45 +46,48 @@
             </tr>
         </c:forEach>
         <c:choose>
-            <c:when test="${not empty currentClient.contracts}">
-            <tr>
-                <td></td>
-                <c:forEach items="${compareTariffs}" var="tariff">
-                        <c:choose>
-                            <c:when test="${currentClient.contracts.size() > 1}">
-                                <td align="center">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
-                                        Activate <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <c:forEach items="${currentClient.contracts}" var="contract">
-                                            <li>
-                                                <a href="/cart/${contract.id}/newtariff?newTariff=${tariff.id}">+${contract.number}</a>
-                                            </li>
-                                        </c:forEach>
-                                    </ul>
-                                </div>
-                                </td>
-                            </c:when>
-                            <c:otherwise>
-                                <td align="center">
-                                <c:forEach items="${currentClient.activeContracts}" var="contract">
-                                        <a href="/cart/${contract.id}/newtariff?newTariff=${tariff.id}" class="btn btn-primary">Activate</a>
-                                </c:forEach>
-                                </td>
-                            </c:otherwise>
-                        </c:choose>
-                </c:forEach>
-            </tr>
-            </c:when>
-            <c:otherwise>
-                Sorry, you can't activate this tariffs because all your contracts are blocked.
-            </c:otherwise>
-        </c:choose>
+        <c:when test="${not empty currentClient.activeContracts}">
+        <tr>
+            <td></td>
+            <c:forEach items="${compareTariffs}" var="tariff">
+                <c:choose>
+                    <c:when test="${currentClient.activeContracts.size() > 1}">
+                        <td align="center">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">
+                                    Activate <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <c:forEach items="${currentClient.activeContracts}" var="contract">
+                                        <li>
+                                            <a href="/cart/${contract.id}/newtariff?newTariff=${tariff.id}">+${contract.number}</a>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </div>
+                        </td>
+                    </c:when>
+                    <c:otherwise>
+                        <td align="center">
+                            <c:forEach items="${currentClient.activeContracts}" var="contract">
+                                <a href="/cart/${contract.id}/newtariff?newTariff=${tariff.id}" class="btn btn-primary">Activate</a>
+                            </c:forEach>
+                        </td>
+                    </c:otherwise>
+                </c:choose>
+            </c:forEach>
+        </tr>
         </tbody>
     </table>
+    </c:when>
+    <c:otherwise>
+        </tbody>
+        </table>
+        <h4>Sorry, you can't activate this tariffs because all your contracts are blocked.</h4>
+    </c:otherwise>
+    </c:choose>
+    <%@include file="/jsp/cart-block.jsp" %>
 </div>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>

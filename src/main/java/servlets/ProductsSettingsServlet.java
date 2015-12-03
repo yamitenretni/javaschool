@@ -252,10 +252,10 @@ public class ProductsSettingsServlet extends HttpServlet {
             String[] mandatoryOptions = req.getParameterValues("mandatory_options[]");
 
 
-            if (req.getParameter("connection_cost") != "") {
+            if (!"".equals(req.getParameter("connection_cost"))) {
                 connectionCost = Double.parseDouble(req.getParameter("connection_cost"));
             }
-            if (req.getParameter("monthly_cost") != "") {
+            if (!"".equals(req.getParameter("monthly_cost"))) {
                 monthlyCost = Double.parseDouble(req.getParameter("monthly_cost"));
             }
 

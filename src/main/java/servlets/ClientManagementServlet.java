@@ -1,6 +1,5 @@
 package servlets;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 import domain.*;
 import form.CartContractForm;
 import form.CartForm;
@@ -135,6 +134,8 @@ public class ClientManagementServlet extends HttpServlet {
 
         Matcher contractBlockMatcher = CONTRACT_BLOCK_PATTERN.matcher(actionPath);
         Matcher contractUnlockMatcher = CONTRACT_UNLOCK_PATTERN.matcher(actionPath);
+
+        Matcher searchClientMatcher = CLIENT_SEARCH_PATTERN.matcher(actionPath);
 
         /**
          * Get client list.
@@ -302,11 +303,25 @@ public class ClientManagementServlet extends HttpServlet {
 
             resp.sendRedirect(refPath);
         }
+        /**
+         * Search client by contract.
+         */
+        else if (searchClientMatcher.matches()) {
+            String contractNumber = req.getParameter("contract");
+
+            Contract contract = contractSvc.getByNumber(contractNumber);
+
+            if (contract != null) {
+                resp.sendRedirect("/clients/" + contract.getClient().getId());
+            } else {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "No such client");
+            }
+
+        }
 
 
     }
 
-    // TODO: 26.11.2015 'Cancel' and 'Previous step' buttons
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
@@ -315,7 +330,6 @@ public class ClientManagementServlet extends HttpServlet {
         Matcher clientAddFirstMatcher = clientAddFirstPattern.matcher(actionPath);
         Matcher clientAddSecondMatcher = clientAddSecondPattern.matcher(actionPath);
         Matcher clientAddThirdMatcher = clientAddThirdPattern.matcher(actionPath);
-        Matcher searchClientMatcher = CLIENT_SEARCH_PATTERN.matcher(actionPath);
         Matcher addContractMatcher = ADD_CONTRACT_PATTERN.matcher(actionPath);
 
         HttpSession session = req.getSession();
@@ -386,8 +400,10 @@ public class ClientManagementServlet extends HttpServlet {
             String[] selectedOptions = req.getParameterValues("selectedOptions[]");
 
             List<Long> savedOptions = new ArrayList<>();
-            for (String optionId : selectedOptions) {
-                savedOptions.add(Long.parseLong(optionId));
+            if (selectedOptions != null) {
+                for (String optionId : selectedOptions) {
+                    savedOptions.add(Long.parseLong(optionId));
+                }
             }
 
 
@@ -440,22 +456,6 @@ public class ClientManagementServlet extends HttpServlet {
             session.setAttribute("newClient", null);
             session.setAttribute("newContract", null);
             resp.sendRedirect("/clients");
-        }
-        /**
-         * Search client by contract.
-         */
-        else if (searchClientMatcher.matches()) {
-            String contractNumber = req.getParameter("contract");
-
-            Contract contract = contractSvc.getByNumber(contractNumber);
-
-            if (contract != null) {
-                resp.sendRedirect("/clients/" + contract.getClient().getId());
-            } else {
-                // TODO: 30.11.2015 why you doesn't work?!
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "No such client");
-            }
-
         }
         /**
          * Add new contract for client.

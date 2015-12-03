@@ -42,10 +42,13 @@
         </div>
     </div>
     <form action="/clients/add/step3" method="post">
-        <a href="/clients/add/step2" class="btn">Previous step</a>
+        <a href="/clients/add/step2" class="btn btn-default">Previous step</a>
         <button type="submit" class="btn btn-primary" name="requestType" value="submit">Confirm</button>
         <a href="/clients/add/cancel" class="btn btn-danger">Clear all data</a>
     </form>
+    <%@include file="/jsp/cart-block.jsp" %>
 </div>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </body>
 </html>

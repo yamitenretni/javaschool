@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -9,6 +10,7 @@
 <body>
 <div class="page">
     <%@include file="/jsp/nav-bar.jsp" %>
+    <h3>Add new tariff</h3>
     <form action="/tariffs/add" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="tariff_name">Tariff name</label>
@@ -34,6 +36,9 @@
         </c:forEach>
         <button type="submit" class="btn btn-primary">Add tariff</button>
     </form>
+    <%@include file="/jsp/cart-block.jsp" %>
 </div>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </body>
 </html>

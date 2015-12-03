@@ -11,6 +11,7 @@
 <body>
 <div class="page">
     <%@include file="/jsp/nav-bar.jsp" %>
+    <h3>New client registration</h3>
     <form action="/clients/add/step1" method="post" accept-charset="utf-8">
         <div class="form-group">
             <label for="firstName">First name</label>
@@ -50,7 +51,9 @@
         <button type="submit" class="btn btn-primary" name="requestType" value="submit">Next step</button>
         <a href="/clients/add/cancel" class="btn btn-danger">Clear all data</a>
     </form>
+    <%@include file="/jsp/cart-block.jsp" %>
 </div>
-
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </body>
 </html>

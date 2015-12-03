@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -48,8 +49,10 @@
 
         <button type="submit" class="btn btn-primary" name="requestType" value="submit">Save contract</button>
     </form>
+    <%@include file="/jsp/cart-block.jsp" %>
 </div>
 <script src="http://code.jquery.com/jquery-latest.js"></script>
 <script src="/js/contract.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </body>
 </html>

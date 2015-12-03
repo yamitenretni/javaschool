@@ -97,7 +97,7 @@ public class CartContractForm {
                 mandatoryOptions.removeAll(activeOptions);
 
                 if (mandatoryCount != 0 && mandatoryOptions.size() == mandatoryCount && !dependingOptions.contains(dependOption)) {
-                    // TODO: 01.12.2015 delete new depend options don't add it to depending
+                    //delete new depend options don't add it to depending
                     if (newOptions.contains(dependOption)) {
                         newOptions.remove(dependOption);
                     }
@@ -105,16 +105,6 @@ public class CartContractForm {
                         dependingOptions.add(dependOption);
                     }
                 }
-//                else if (mandatoryOptions.isEmpty() && !dependingOptions.contains(dependOption)) {
-//                    if (newOptions.contains(dependOption)) {
-//                        newOptions.remove(dependOption);
-//                    }
-//                    else {
-//                        dependingOptions.add(dependOption);
-//                    }
-//                }
-
-
             }
         }
     }
@@ -213,29 +203,32 @@ public class CartContractForm {
             //add depend active option to depending option
             List<ContractOption> options = new ArrayList<>(deactivatedOptions);
             options.addAll(contract.getActivatedOptions());
-            for (ContractOption deactiveOption : options) {
-                Set<ContractOption> mandatoryOptions = deactiveOption.getMandatoryOptions();
-                boolean isDepend = true;
-                for (ContractOption mandatoryOption : mandatoryOptions) {
-                    if (getFutureOptionList().contains(mandatoryOption)) {
-                        isDepend = false;
-                        break;
-                    }
-                }
-                if (isDepend && !mandatoryOptions.isEmpty() && !dependingOptions.contains(deactiveOption)) {
-                    dependingOptions.add(deactiveOption);
-                }
-            }
-
-
-
-
-
+            deactivateDependingOptions(options);
         }
     }
 
     /**
-     * Change contract tariff and deactivate all active options.
+     * Find depending options in the given list and add then to depending list.
+     * @param options list of options
+     */
+    private void deactivateDependingOptions(final List<ContractOption> options){
+        for (ContractOption deactiveOption : options) {
+            Set<ContractOption> mandatoryOptions = deactiveOption.getMandatoryOptions();
+            boolean isDepend = true;
+            for (ContractOption mandatoryOption : mandatoryOptions) {
+                if (getFutureOptionList().contains(mandatoryOption)) {
+                    isDepend = false;
+                    break;
+                }
+            }
+            if (isDepend && !mandatoryOptions.isEmpty() && !dependingOptions.contains(deactiveOption)) {
+                dependingOptions.add(deactiveOption);
+            }
+        }
+    }
+
+    /**
+     * Change contract tariff and deactivate all unsupported options.
      *
      * @param tariff new tariff for the contract
      */
@@ -248,7 +241,7 @@ public class CartContractForm {
         options.removeAll(tariff.getAvailableOptions());
         unsupportedOptions = options;
 
-        //delete unsupported options from dependings
+        //delete unsupported options from depending list.
         for (ContractOption unsupportedOption : unsupportedOptions) {
             if (dependingOptions.contains(unsupportedOption)) {
                 dependingOptions.remove(unsupportedOption);
@@ -264,37 +257,52 @@ public class CartContractForm {
         }
         newOptions.removeAll(deletingNewOptions);
 
-        /**
-         * Simple logic: all activated options will be deactivated if tariff changes
-         */
-//        for (ContractOption option : contract.getActivatedOptions()) {
-//            addDeactivatedOption(option);
-//        }
+        List<ContractOption> activeOptions = new ArrayList<>(contract.getActivatedOptions());
+        activeOptions.removeAll(deactivatedOptions);
+        activeOptions.removeAll(unsupportedOptions);
+        activeOptions.removeAll(dependingOptions);
+        deactivateDependingOptions(activeOptions);
+
     }
 
     /**
-     * Set null into newTariff field.
+     * Delete new tariff, remove options from the cart.
      */
     public final void deleteNewTariff() {
         newTariff = null;
 
         // add depend options from unsupported
-        for (ContractOption unsupportedOption : unsupportedOptions) {
-            Set<ContractOption> mandatoryOptions = unsupportedOption.getMandatoryOptions();
-            boolean isDepend = true;
-            for (ContractOption mandatoryOption : mandatoryOptions) {
+        deactivateDependingOptions(unsupportedOptions);
+        unsupportedOptions = new ArrayList<>();
+
+        //delete depend options from list
+        ArrayList<ContractOption> notDependingOptions = new ArrayList<>();
+        for (ContractOption dependOption : dependingOptions) {
+            for (ContractOption mandatoryOption : dependOption.getMandatoryOptions()) {
                 if (getFutureOptionList().contains(mandatoryOption)) {
-                    isDepend = false;
+                    notDependingOptions.add(dependOption);
                     break;
                 }
             }
-            if (isDepend && !mandatoryOptions.isEmpty() && !dependingOptions.contains(unsupportedOption)) {
-                dependingOptions.add(unsupportedOption);
+        }
+        dependingOptions.removeAll(notDependingOptions);
+
+        // delete unavailable options from new options
+        List<ContractOption> unavailableOptions = new ArrayList<>();
+        for (ContractOption newOption : newOptions) {
+            if (!contract.getTariff().getAvailableOptions().contains(newOption)) {
+                unavailableOptions.add(newOption);
             }
         }
+        newOptions.removeAll(unavailableOptions);
 
-        unsupportedOptions = new ArrayList<>();
+        // deactivate depending options
+        List<ContractOption> options = new ArrayList<>(contract.getActivatedOptions());
+        options.removeAll(deactivatedOptions);
+        options.removeAll(unsupportedOptions);
+        options.removeAll(dependingOptions);
 
+        deactivateDependingOptions(options);
     }
 
     /**

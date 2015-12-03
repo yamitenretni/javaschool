@@ -44,12 +44,13 @@
                 </c:if>
             </ul>
             <c:if test="${currentUser.roleName != 'CLIENT'}">
-                <form class="navbar-form navbar-left" role="search" action="/clients/search" method="post">
-                    <div class="form-group">
+                <form class="navbar-form navbar-left" role="search" action="/clients/search" method="get">
+                    <div class="form-group input-group">
+                        <span class="input-group-addon" id="basic-addon1">+</span>
                         <input type="text" class="form-control" name="contract" placeholder="Search by contract"
                                pattern="\d+" required>
                     </div>
-                    <button type="submit" class="btn btn-default">Submit</button>
+                    <button type="submit" class="btn btn-default">Search</button>
                 </form>
             </c:if>
             <ul class="nav navbar-nav navbar-right">

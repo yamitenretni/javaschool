@@ -8,7 +8,9 @@
 
             <ul class="nav nav-tabs">
                 <c:forEach items="${cartForm.cartContractForms}" var="cartPosition" varStatus="positionLoop">
-                    <li role="presentation" <c:if test="${positionLoop.index == 0}">class="active"</c:if>>
+                    <li role="presentation"
+                        <c:if test="${(empty contract and positionLoop.index == 0) or (contract.id == cartPosition.contract.id)}">class="active"</c:if>
+                    >
                         <a href="#${cartPosition.contract.number}"
                            data-toggle="tab">+${cartPosition.contract.number}</a>
                     </li>
@@ -18,7 +20,10 @@
                 <c:forEach items="${cartForm.cartContractForms}" var="cartPosition" varStatus="positionLoop">
                     <div role="tabpanel"
                             <c:choose>
-                                <c:when test="${positionLoop.index == 0}">
+                                <c:when test="${contract.id == cartPosition.contract.id}">
+                                    class="tab-pane fade active in"
+                                </c:when>
+                                <c:when test="${empty contract and positionLoop.index == 0}">
                                     class="tab-pane fade active in"
                                 </c:when>
                                 <c:otherwise>

@@ -1,6 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="C" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -25,14 +24,20 @@
         <c:if test="${not client.blocked}">
             <div class="btn-group pull-right" role="group" aria-label="...">
                 <c:choose>
-                    <c:when test="${not contract.blocked}">
-                        <a href="/contracts/${contract.id}/block" class="btn btn-default" role="button">Block
+                    <c:when test="${not contract.blocked and currentUser.roleName == 'EMPLOYEE'}">
+                        <a href="/contracts/${contract.id}/block" class="btn btn-danger" role="button">Block
                             contract</a>
                     </c:when>
-                    <c:otherwise>
-                        <a href="/contracts/${contract.id}/unlock" class="btn btn-default" role="button">Unlock
+                    <c:when test="${not contract.blocked and currentUser.roleName == 'CLIENT'}">
+                        <a href="/my/contracts/${contract.id}/block" class="btn btn-danger" role="button">Block
                             contract</a>
-                    </c:otherwise>
+                    </c:when>
+                    <c:when test="${contract.blocked and currentUser.roleName == 'CLIENT' and contract.blockingUser.id == currentUser.id}">
+                        <a href="/my/contracts/${contract.id}/unlock" class="btn btn-success">Unlock contract</a>
+                    </c:when>
+                    <c:when test="${contract.blocked and currentUser.roleName == 'EMPLOYEE'}">
+                        <a href="/contracts/${contract.id}/unlock" class="btn btn-success">Unlock contract</a>
+                    </c:when>
                 </c:choose>
             </div>
         </c:if>
@@ -121,7 +126,9 @@
                                 </span>
                             </div>
                         </div>
-                        <a href="/my/tariffs" class="btn btn-default"> Learn more about tariffs</a>
+                        <c:if test="${currentUser.roleName == 'CLIENT'}">
+                            <a href="/my/tariffs" class="btn btn-default"> Learn more about tariffs</a>
+                        </c:if>
                     </div>
                 </form>
             </div>

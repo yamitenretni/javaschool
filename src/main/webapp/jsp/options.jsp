@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -10,10 +11,8 @@
 <body>
 <div class="page">
     <%@include file="/jsp/nav-bar.jsp" %>
-    <a href="/options/add" class="btn btn-primary">Add Option</a>
-    <a href="/tariffs" class="btn">Manage Tariffs</a>
+    <h3>Active options:</h3>
     <table class="table">
-        <caption>All active options:</caption>
         <thead>
         <tr>
             <th>Name</th>
@@ -35,6 +34,9 @@
         </c:forEach>
         </tbody>
     </table>
+    <%@include file="/jsp/cart-block.jsp" %>
 </div>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </body>
 </html>

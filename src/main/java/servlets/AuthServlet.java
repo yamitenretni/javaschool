@@ -46,6 +46,7 @@ public class AuthServlet extends HttpServlet {
         if (logoutMatcher.matches()) {
             req.getSession().setAttribute("currentUser", null);
             req.getSession().setAttribute("cartForm", null);
+            req.getSession().setAttribute("compareTariffs", null);
             resp.sendRedirect("/login");
         }
 
@@ -77,7 +78,7 @@ public class AuthServlet extends HttpServlet {
 
                 if (currentUser.getRole() == Role.CLIENT) {
                     req.getSession().setAttribute("currentClient", CLIENT_SVC.getByUser(currentUser));
-                    if (refPath == "") {
+                    if ("".equals(refPath)) {
                         refPath = "/my";
                     }
                 }
